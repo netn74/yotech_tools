@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_yotech_tools_product_template_form" model="ir.ui.view">
+            <field name="name">product.template.form.yotech.tools</field>
+            <field name="model">product.template</field>
+            <field name="priority">4</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <page string="Sales" position="inside">
+                    <field name="message_type_ids">Messages List</field>
+                </page>
+            </field>
+        </record>
+
+        <template id="custom_yotech_product" inherit_id="website_sale.product" name="Yotech-Product">
+            <xpath expr="//hr[@t-if='product.description_sale']" position="replace">
+                <hr t-if="product.description_sale"/>
+                <div><p t-field="product.description_sale" class="text-muted"/></div>
+                <hr/>
+                <t t-if="product.message_type_ids">
+                    <t t-foreach="product.message_type_ids" t-as="message_id">
+                        <div><span name="info" t-raw="message_id.message"/></div>
+                    </t>
+                </t>
+            </xpath>
+        </template>
+        <!-- Yotech Tools menu setting -->
+        <menuitem name="Yotech Tools"
+            id="root_menu_base_yotech_tools"
+            groups="base.group_sale_salesman,base.group_sale_manager" parent="base.menu_config" sequence="10" />
+
+        <menuitem id="menu_yotech_tools_settings" name="Yotech Tools" parent="root_menu_base_yotech_tools" sequence="9"/>
+
+        <!-- Yotech Tools menu setting -->
+        <record model="ir.actions.act_window" id="action_list_message_type_id">
+            <field name="name">Message Type</field>
+            <field name="res_model">message.type</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="menu_yotech_tools_set_messages_type" action="action_list_message_type_id" name="Message Type" parent="menu_yotech_tools_settings" sequence = "1" />
+
+        <record id="view_oms_cluster_tree" model="ir.ui.view">
+            <field name="name">message.type.tree</field>
+            <field name="model">message.type</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <tree string="Messages List">
+                    <field name="name" string="Message name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_yotech_tools_message_type_form" model="ir.ui.view">
+            <field name="name">message.type.form.yotech.tools</field>
+            <field name="model">message.type</field>
+            <field name="priority">4</field>
+            <field name="arch" type="xml">
+                <form string="Sales Order">
+                    <field name="name">Name</field>
+                    <seperator/>
+                    <field name="message">Message</field>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</openerp>
