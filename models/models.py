@@ -28,11 +28,22 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
+class yotech_setting(osv.osv):
+    _order = "name"
+    _name = "yotech.setting"
+    _description = "Yotech setting"
+
+    _columns = {
+        'name': fields.char('Yotech Setting Name', required=True, copy=False,
+            readonly=False, select=True),
+        'product_out_of_stock_mgn': fields.boolean('Product Out of Stock Management?')
+    }
+
 class message_type(osv.osv):
     _order = "name"
     _name = "message.type"
     _description = "Web html Message type after description sale"
-    
+
     _columns = {
         'name': fields.char('Message Name', required=True, copy=False,
             readonly=False, select=True),

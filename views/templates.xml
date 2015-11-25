@@ -7,10 +7,13 @@
             <field name="priority">4</field>
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
-                <page string="Sales" position="inside">
-                    <field name="message_type_ids">Messages List</field>
-                </page>
-            </field>
+                <group name="sale" position="inside">
+                    <group name="sale_add_message" string="Additional message">
+                        <field name='product_on_demand_only'>Product on demand only ?</field>
+                        <field name="message_type_ids">Messages List</field>
+                    </group>
+                </group>
+           </field>
         </record>
 
         <template id="custom_yotech_product" inherit_id="website_sale.product" name="Yotech-Product">
@@ -64,6 +67,32 @@
                 </form>
             </field>
         </record>
+
+        <!-- Website customisation -->
+<!--        <template id="products_item" inherit_id="website_sale.products_item" name="Product item">
+            <xpath expr="//div[@class='product_price']" position="replace">
+                <div itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer" class="product_price" t-if="product.product_variant_ids">
+                    <t t-if="product.website_price_displayed">
+                        <b>
+                            <t t-if="(compute_currency(product.lst_price) - product.price) &gt; 0.1">
+                                <del class="text-danger mr8" style="white-space: nowrap;" t-field="product.lst_price" t-field-options='{
+                                    "widget": "monetary",
+                                    "from_currency": "product.company_id.currency_id",
+                                    "display_currency": "website.currency_id"
+                                }'/>
+                            </t>
+                            <span t-field="product.price" style="white-space: nowrap;"  t-field-options='{
+                                "widget": "monetary",
+                                "display_currency": "website.currency_id"
+                                }'>
+                            </span>
+                            <span itemprop="price" style="display:none;" t-esc="product.price"/>
+                            <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
+                        </b>
+                    </t>
+              </div>
+          </xpath>
+        </template> -->
 
     </data>
 </openerp>

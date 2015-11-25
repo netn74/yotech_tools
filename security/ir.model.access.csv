@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-message_type,message.type.catalog value,model_message_type,base.group_user,1,1,1,1
+message_type,message.type value,model_message_type,base.group_user,1,1,1,1
 message_type_portal,message.type.portal value,model_message_type,base.group_portal,1,0,0,0
+yotech_setting,yotech.setting value,model_yotech_setting,base.group_user,1,1,1,1
+yotech_setting_portal,yotech.setting.portal value,model_yotech_setting,base.group_portal,1,0,0,0

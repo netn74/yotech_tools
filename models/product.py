@@ -31,7 +31,25 @@ _logger = logging.getLogger(__name__)
 class product_template(osv.osv):
     _inherit = "product.template"
 
+    def _website_price_displayed(self, cr, uid, ids, field_name, arg, context=None):
+        """ Return true if price must be display or not on a website
+            Ex: product out of stock and Product avaible on demand
+        """
+        res = {}
+        yotech_setting = self.pool['yotech.setting'].browse(cr, uid, ids, context=context)[0]
+
+        for product_tmpl in self.browse(cr, uid, ids):
+            res[product_tmpl.id] = True
+            if yotech_setting.product_out_of_stock_mgn:
+                if product_tmpl['qty_available'] <= 0:
+                    res[product_tmpl.id] = False
+            if product_tmpl['product_on_demand_only']:
+                res[product_tmpl.id] = False
+        return res
+
     _columns = {
+        'website_price_displayed': fields.function(_website_price_displayed, string="Is price displayed", type="boolean"),
+        'product_on_demand_only': fields.boolean('Product on demand only?'),
         'message_type_ids': fields.many2many('message.type', 'message_type_rel', 'child_id', 'parent_id', 'Message list'),
     }    
     
