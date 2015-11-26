@@ -29,7 +29,7 @@ _logger = logging.getLogger(__name__)
 
 class product_template(osv.osv):
     _name = "product.template"
-    _inherit = ['product.template']
+    _inherit = "product.template"
     _description = "Product Template"
     _order = "name"
 
@@ -39,17 +39,17 @@ class product_template(osv.osv):
         """
         res = {}
         yotech_settings = self.pool['yotech.settings'].browse(cr, uid, [1], context=context)[0]
-        _logger.info("yotech_settings.product_out_of_stock_mgn => " + str(yotech_settings.product_out_of_stock_mgn))
+        #_logger.info("yotech_settings.product_out_of_stock_mgn => " + str(yotech_settings.product_out_of_stock_mgn))
 
-        _logger.info('in _website_price_displayed ...')
+        #_logger.info('in _website_price_displayed ...')
         for product_tmpl in self.browse(cr, uid, ids):
             res[product_tmpl.id] = True
-            if yotech_settings.product_out_of_stock_mgn:
-                _logger.info("product_tmpl.id => " + str(product_tmpl.id))
-                _logger.info("product_tmpl['type'] => " + product_tmpl['type'])
-                if product_tmpl['type'] == "product":
-                    if product_tmpl['qty_available'] <= 0:
-                        res[product_tmpl.id] = False
+            #if yotech_settings.product_out_of_stock_mgn:
+                #_logger.info("product_tmpl.id => " + str(product_tmpl.id))
+                #_logger.info("product_tmpl['type'] => " + product_tmpl['type'])
+                #if product_tmpl['type'] == "product":
+                #    if product_tmpl['qty_available'] <= 0:
+                #        res[product_tmpl.id] = False
             if product_tmpl['product_on_demand']:
                 res[product_tmpl.id] = False
         return res
