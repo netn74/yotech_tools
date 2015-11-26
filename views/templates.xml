@@ -9,42 +9,69 @@
             <field name="arch" type="xml">
                 <group name="sale" position="inside">
                     <group name="sale_add_message" string="Additional message">
-                        <field name='product_on_demand_only'>Product on demand only ?</field>
-                        <field name="message_type_ids">Messages List</field>
+                        <field name='website_price_displayed'>Price will be displayed on website?</field>
+                        <field name='product_on_demand'>Product on demand?</field>
+                        <field name="message_type_ids">Messages type list</field>
                     </group>
                 </group>
            </field>
         </record>
 
-        <template id="custom_yotech_product" inherit_id="website_sale.product" name="Yotech-Product">
-            <xpath expr="//hr[@t-if='product.description_sale']" position="replace">
-                <hr t-if="product.description_sale"/>
-                <div><p t-field="product.description_sale" class="text-muted"/></div>
-                <hr/>
-                <t t-if="product.message_type_ids">
-                    <t t-foreach="product.message_type_ids" t-as="message_id">
-                        <div><span name="info" t-raw="message_id.message"/></div>
-                    </t>
-                </t>
-            </xpath>
-        </template>
-        <!-- Yotech Tools menu setting -->
-        <menuitem name="Yotech Tools"
-            id="root_menu_base_yotech_tools"
-            groups="base.group_sale_salesman,base.group_sale_manager" parent="base.menu_config" sequence="10" />
+        <!-- ACTIONS Yotech tools menu setting ACTIONS -->
+        <record model="ir.actions.act_window" id="action_yotech_config" >
+            <field name="name">Configure Yotech</field>
+            <field name="res_model">yotech.settings</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
-        <menuitem id="menu_yotech_tools_settings" name="Yotech Tools" parent="root_menu_base_yotech_tools" sequence="9"/>
-
-        <!-- Yotech Tools menu setting -->
         <record model="ir.actions.act_window" id="action_list_message_type_id">
-            <field name="name">Message Type</field>
+            <field name="name">Message type</field>
             <field name="res_model">message.type</field>
             <field name="view_mode">tree,form</field>
         </record>
 
-        <menuitem id="menu_yotech_tools_set_messages_type" action="action_list_message_type_id" name="Message Type" parent="menu_yotech_tools_settings" sequence = "1" />
+        <!-- MENUITEM Yotech Tools menu setting MENUITEM -->
+        <menuitem name="Yotech Tools Settings"
+            id="root_menu_base_yotech_tools"
+            groups="base.group_sale_salesman,base.group_sale_manager" parent="base.menu_config" sequence="10" />
 
-        <record id="view_oms_cluster_tree" model="ir.ui.view">
+        <!-- <menuitem id="menu_yotech_tools_settings" name="Yotech Setting" parent="root_menu_base_yotech_tools" sequence="9"/> -->
+
+        <menuitem id="menu_yotech_tools_settings" action="action_yotech_config" name="Yotech Config" parent="root_menu_base_yotech_tools" sequence = "1" />
+        <menuitem id="menu_yotech_tools_set_messages_type" action="action_list_message_type_id" name="Message Type" parent="root_menu_base_yotech_tools" sequence = "1" />
+
+        <!-- VIEWS Yotech Tools menu setting VIEWS  -->
+        <record id="view_yotech_settings_tree" model="ir.ui.view">
+            <field name="name">view.yotech.settings.tree</field>
+            <field name="model">yotech.settings</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <tree string="Config List">
+                    <field name="name" string="Config Name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_yotech_settings_form" model="ir.ui.view">
+            <field name="name">view.yotech.settings.form</field>
+            <field name="model">yotech.settings</field>
+            <field name="priority">4</field>
+            <field name="arch" type="xml">
+                <form string="Yotech Settings" class="oe_form_configuration">
+                    <field name="name">Name</field>
+                    <seperator/>
+                    <group name="Behaviours">
+                        <label for="id" string="Products"/>
+                        <div>
+                            <field name="product_out_of_stock_mgn" class="oe_inline"/>
+                            <label for="product_out_of_stock_mgn"/>
+                        </div>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="yotech_view_cluster_tree" model="ir.ui.view">
             <field name="name">message.type.tree</field>
             <field name="model">message.type</field>
             <field name="priority">2</field>
@@ -55,7 +82,7 @@
             </field>
         </record>
 
-        <record id="view_yotech_tools_message_type_form" model="ir.ui.view">
+        <record id="yotech_view_tools_message_type_form" model="ir.ui.view">
             <field name="name">message.type.form.yotech.tools</field>
             <field name="model">message.type</field>
             <field name="priority">4</field>
@@ -69,7 +96,7 @@
         </record>
 
         <!-- Website customisation -->
-<!--        <template id="products_item" inherit_id="website_sale.products_item" name="Product item">
+        <template id="yotech_custom_products_item" inherit_id="website_sale.products_item" name="Yotech Custom Product item">
             <xpath expr="//div[@class='product_price']" position="replace">
                 <div itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer" class="product_price" t-if="product.product_variant_ids">
                     <t t-if="product.website_price_displayed">
@@ -92,7 +119,109 @@
                     </t>
               </div>
           </xpath>
-        </template> -->
+        </template>
 
+        <template id="yotech_custom_product_price" inherit_id="website_sale.product_price" name="Yotech Custom Product Price">
+            <xpath expr="//div[@itemprop='offers']" position="replace">
+                <div itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer" class="product_price mt16">
+                    <t t-if="product.website_price_displayed">
+                        <h4 class="oe_price_h4 css_editable_mode_hidden">
+                            <span class="text-danger oe_default_price" style="text-decoration: line-through; white-space: nowrap;"
+                              t-field="product.lst_price"
+                              t-field-options='{
+                                "widget": "monetary",
+                                "from_currency": "product.company_id.currency_id",
+                                "display_currency": "user_id.partner_id.property_product_pricelist.currency_id"
+                             }'/>
+                            <b class="oe_price" style="white-space: nowrap;"
+                              t-field="product.price"
+                              t-field-options='{
+                                 "widget": "monetary",
+                                 "display_currency": "user_id.partner_id.property_product_pricelist.currency_id"
+                             }'/>
+                            <span itemprop="price" style="display:none;" t-esc="product.price"/>
+                            <span itemprop="priceCurrency" style="display:none;" t-esc="user_id.partner_id.property_product_pricelist.currency_id.name"/>
+                        </h4>
+                        <h4 class="css_editable_mode_display" style="display: none;">
+                          <span t-field="product.lst_price"
+                              t-field-options='{
+                                 "widget": "monetary",
+                                 "display_currency": "website.pricelist_id.currency_id"
+                             }'/>
+                        </h4>
+                        <h4 class="hidden oe_not_available bg-warning">Product not available</h4>
+                    </t>
+                </div>
+          </xpath>
+        </template>
+        <template id="yotech_custom_product" inherit_id="website_sale.product" name="Yotech Custom Product">
+            <xpath expr="//section[@id='product_detail']" position="replace">
+                <section t-attf-class="container mt8 oe_website_sale #{(compute_currency(product.lst_price) - product.price) &gt; 0.1 and 'discount'}" id="product_detail">
+                  <div class="row">
+                    <div class="col-sm-4">
+                        <ol class="breadcrumb">
+                            <li><a t-att-href="keep(category=0)" onclick="history.go(-1); return false;">Products</a></li>
+                            <li t-if="category"><a t-att-href="keep('/shop/category/%s' % slug(category), category=0)" t-field="category.name"/></li>
+                            <li class="active"><span t-field="product.name"/></li>
+                        </ol>
+                    </div>
+                    <div class="col-sm-3">
+                      <t t-call="website_sale.search"><t t-set="search_class">pull-right</t></t>
+                    </div>
+                    <div class="col-sm-4" groups="base.group_sale_manager">
+                        <t t-call="website.publish_management">
+                          <t t-set="object" t-value="product"/>
+                          <t t-set="publish_edit" t-value="True"/>
+                          <t t-set="action" t-value="'product.product_template_action'"/>
+                        </t>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-7 col-md-7 col-lg-7">
+                        <span itemprop="image" t-field="product.image" t-field-options='{"widget": "image", "class": "product_detail_img"}'/>
+                    </div><div class="col-sm-5 col-md-5 col-lg-4 col-lg-offset-1">
+                        <h1 itemprop="name" t-field="product.name">Product Name</h1>
+                        <span itemprop="url" style="display:none;" t-esc="'/shop/product/%s' % slug(product)"/>
+
+                        <form t-att-action="keep('/shop/cart/update')" class="js_add_cart_variants" method="POST">
+
+                          <div class="js_product">
+                              <t t-placeholder="select">
+                                  <input type="hidden" class="product_id" name="product_id" t-att-value="int(product.product_variant_ids[0]) if len(product.product_variant_ids) == 1 else '0'"/>
+                                  <t t-call="website_sale.variants">
+                                    <t t-set="ul_class" t-value="'nav-stacked'"/>
+                                  </t>
+                              </t>
+                              <t t-if="product.website_price_displayed">
+                                  <t t-call="website_sale.product_price"/>
+                                  <p t-if="len(product.product_variant_ids) > 1" class="css_not_available_msg bg-danger" style="padding: 15px;">Product not available</p>
+
+                                  <a id="add_to_cart" class="btn btn-primary btn-lg mt8 js_check_product a-submit" href="#">Add to Cart</a>
+                              </t>
+                          </div>
+
+                        </form>
+
+                        <hr t-if="product.description_sale"/>
+                        <div><p t-field="product.description_sale" class="text-muted"/></div>
+                        <hr/>
+                        <t t-if="len(product.message_type_ids) != 0">
+                          <t t-if="product.message_type_ids">
+                            <t t-foreach="product.message_type_ids" t-as="message_id">
+                                <div><span name="info" t-raw="message_id.message"/></div>
+                                <hr />
+                            </t>
+                          </t>
+                        </t>
+                        <!-- <p class="text-muted">
+                            30-day money-back guarantee<br/>
+                            Free Shipping in U.S.<br/>
+                            Buy now, get in 2 days
+                        </p> -->
+                    </div>
+                  </div>
+                </section>
+            </xpath>
+        </template>
     </data>
 </openerp>
