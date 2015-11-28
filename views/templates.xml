@@ -171,6 +171,24 @@
                     </t>
                 </div>
             </xpath>
+            <!-- Add list instead default message
+                <p class="text-muted">
+                    30-day money-back guarantee<br/>
+                    Free Shipping in U.S.<br/>
+                    Buy now, get in 2 days
+                </p>
+            -->
+            <xpath expr="//p[@class='text-muted']" position="replace">
+-                <hr/>
+-                <t t-if="len(product.message_type_ids) != 0">
+-                  <t t-if="product.message_type_ids">
+-                    <t t-foreach="product.message_type_ids" t-as="message_id">
+-                        <div><span name="info" t-raw="message_id.message"/></div>
+-                        <hr />
+-                    </t>
+-                  </t>
+-                </t>
+            </xpath>
         </template>
     </data>
 </openerp>
