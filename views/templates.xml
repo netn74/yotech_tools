@@ -155,72 +155,21 @@
           </xpath>
         </template>
         <template id="yotech_custom_product" inherit_id="website_sale.product" name="Yotech Custom Product">
-            <xpath expr="//section[@id='product_detail']" position="replace">
-                <section t-attf-class="container mt8 oe_website_sale #{(compute_currency(product.lst_price) - product.price) &gt; 0.1 and 'discount'}" id="product_detail">
-                  <div class="row">
-                    <div class="col-sm-4">
-                        <ol class="breadcrumb">
-                            <li><a t-att-href="keep(category=0)" onclick="history.go(-1); return false;">Products</a></li>
-                            <li t-if="category"><a t-att-href="keep('/shop/category/%s' % slug(category), category=0)" t-field="category.name"/></li>
-                            <li class="active"><span t-field="product.name"/></li>
-                        </ol>
-                    </div>
-                    <div class="col-sm-3">
-                      <t t-call="website_sale.search"><t t-set="search_class">pull-right</t></t>
-                    </div>
-                    <div class="col-sm-4" groups="base.group_sale_manager">
-                        <t t-call="website.publish_management">
-                          <t t-set="object" t-value="product"/>
-                          <t t-set="publish_edit" t-value="True"/>
-                          <t t-set="action" t-value="'product.product_template_action'"/>
+            <xpath expr="//div[@class='js_product']" position="replace">
+                <div class="js_product">
+                    <t t-placeholder="select">
+                        <input type="hidden" class="product_id" name="product_id" t-att-value="int(product.product_variant_ids[0]) if len(product.product_variant_ids) == 1 else '0'"/>
+                        <t t-call="website_sale.variants">
+                            <t t-set="ul_class" t-value="'nav-stacked'"/>
                         </t>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-sm-7 col-md-7 col-lg-7">
-                        <span itemprop="image" t-field="product.image" t-field-options='{"widget": "image", "class": "product_detail_img"}'/>
-                    </div><div class="col-sm-5 col-md-5 col-lg-4 col-lg-offset-1">
-                        <h1 itemprop="name" t-field="product.name">Product Name</h1>
-                        <span itemprop="url" style="display:none;" t-esc="'/shop/product/%s' % slug(product)"/>
+                    </t>
+                    <t t-if="product.website_price_displayed">
+                        <t t-call="website_sale.product_price"/>
+                        <p t-if="len(product.product_variant_ids) > 1" class="css_not_available_msg bg-danger" style="padding: 15px;">Product not available</p>
 
-                        <form t-att-action="keep('/shop/cart/update')" class="js_add_cart_variants" method="POST">
-
-                          <div class="js_product">
-                              <t t-placeholder="select">
-                                  <input type="hidden" class="product_id" name="product_id" t-att-value="int(product.product_variant_ids[0]) if len(product.product_variant_ids) == 1 else '0'"/>
-                                  <t t-call="website_sale.variants">
-                                    <t t-set="ul_class" t-value="'nav-stacked'"/>
-                                  </t>
-                              </t>
-                              <t t-if="product.website_price_displayed">
-                                  <t t-call="website_sale.product_price"/>
-                                  <p t-if="len(product.product_variant_ids) > 1" class="css_not_available_msg bg-danger" style="padding: 15px;">Product not available</p>
-
-                                  <a id="add_to_cart" class="btn btn-primary btn-lg mt8 js_check_product a-submit" href="#">Add to Cart</a>
-                              </t>
-                          </div>
-
-                        </form>
-
-                        <hr t-if="product.description_sale"/>
-                        <div><p t-field="product.description_sale" class="text-muted"/></div>
-                        <hr/>
-                        <t t-if="len(product.message_type_ids) != 0">
-                          <t t-if="product.message_type_ids">
-                            <t t-foreach="product.message_type_ids" t-as="message_id">
-                                <div><span name="info" t-raw="message_id.message"/></div>
-                                <hr />
-                            </t>
-                          </t>
-                        </t>
-                        <!-- <p class="text-muted">
-                            30-day money-back guarantee<br/>
-                            Free Shipping in U.S.<br/>
-                            Buy now, get in 2 days
-                        </p> -->
-                    </div>
-                  </div>
-                </section>
+                        <a id="add_to_cart" class="btn btn-primary btn-lg mt8 js_check_product a-submit" href="#">Add to Cart</a>
+                    </t>
+                </div>
             </xpath>
         </template>
     </data>

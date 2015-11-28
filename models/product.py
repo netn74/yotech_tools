@@ -35,27 +35,32 @@ class product_template(osv.osv):
 
     def _website_price_displayed(self, cr, uid, ids, field_name, arg, context=None):
         """ Return true if price must be display on a website or not
-            Ex: product_out_of_stock and product_on_demand
+             Ex: product_out_of_stock and product_on_demand
         """
         res = {}
-        yotech_settings = self.pool['yotech.settings'].browse(cr, uid, [1], context=context)[0]
+
+        yotech_settings_ids = self.pool.get('yotech.settings').search(cr, uid, [])
+
+        if len (yotech_settings_ids) >=1 :
+            yotech_settings = self.pool['yotech.settings'].browse(cr, uid, yotech_settings_ids[0], context=context)
         #_logger.info("yotech_settings.product_out_of_stock_mgn => " + str(yotech_settings.product_out_of_stock_mgn))
 
         #_logger.info('in _website_price_displayed ...')
         for product_tmpl in self.browse(cr, uid, ids):
             res[product_tmpl.id] = True
-            #if yotech_settings.product_out_of_stock_mgn:
-                #_logger.info("product_tmpl.id => " + str(product_tmpl.id))
-                #_logger.info("product_tmpl['type'] => " + product_tmpl['type'])
-                #if product_tmpl['type'] == "product":
-                #    if product_tmpl['qty_available'] <= 0:
-                #        res[product_tmpl.id] = False
+            if len (yotech_settings_ids) >=1 :
+                if yotech_settings.product_out_of_stock_mgn:
+                    #_logger.info("product_tmpl.id => " + str(product_tmpl.id))
+                    #_logger.info("product_tmpl['type'] => " + product_tmpl['type'])
+                    if product_tmpl['type'] == "product":
+                        if product_tmpl['qty_available'] <= 0:
+                            res[product_tmpl.id] = False
             if product_tmpl['product_on_demand']:
                 res[product_tmpl.id] = False
         return res
 
     _columns = {
-        'website_price_displayed': fields.function(_website_price_displayed, type="boolean", string="Is the price displayed?"),
+        'website_price_displayed': fields.function(_website_price_displayed, type="boolean", string="Is the price displayed?", store=False),
         'product_on_demand': fields.boolean('Product on demand?'),
         'message_type_ids': fields.many2many('message.type', 'message_type_rel', 'child_id', 'parent_id', 'Message list'),
     }

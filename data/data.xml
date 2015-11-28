@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-    <data>
+    <data noupdate="0">
+        <record id="yotech_settings" model="yotech.settings">
+            <field name="name">Yotech Settings</field>
+        </record>
     </data>
 </openerp>

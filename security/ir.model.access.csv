@@ -1,9 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 message_type,message.type value,model_message_type,base.group_user,1,1,1,1
 message_type_public,message.type.public value,model_message_type,,1,0,0,0
-yotech_settings,yotech.settings value,model_yotech_settings,base.group_user,1,1,1,1
 yotech_settings_portal,yotech.settings.portal value,model_yotech_settings,base.group_portal,1,0,0,0
-yotech_settings,yotech.settings.public value,model_yotech_settings,,1,0,0,0
+yotech_settings_public,yotech.settings.public value,model_yotech_settings,,1,0,0,0
 access_stock_quant_portal,stock.quant.portal,stock.model_stock_quant,base.group_portal,1,0,0,0
 access_stock_location_portal,stock.location.portal,stock.model_stock_location,base.group_portal,1,0,0,0
 access_product_uom_stock_portal,product.uom.portal,product.model_product_uom,base.group_portal,1,0,0,0
