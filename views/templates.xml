@@ -179,15 +179,13 @@
                 </p>
             -->
             <xpath expr="//p[@class='text-muted']" position="replace">
--                <hr/>
--                <t t-if="len(product.message_type_ids) != 0">
--                  <t t-if="product.message_type_ids">
--                    <t t-foreach="product.message_type_ids" t-as="message_id">
--                        <div><span name="info" t-raw="message_id.message"/></div>
--                        <hr />
--                    </t>
--                  </t>
--                </t>
+                <t t-if="len(product.message_type_ids) > 0">
+                    <hr/>
+                     <t t-foreach="product.message_type_ids" t-as="message_id">
+                        <div><span name="info" t-raw="message_id.message"/></div>
+                        <hr />
+                    </t>
+                </t>
             </xpath>
         </template>
     </data>
