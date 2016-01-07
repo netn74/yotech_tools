@@ -48,11 +48,11 @@ class product_product(osv.osv):
         _logger.info('product_new_template_info =) '+ str(product_new_template_info))
 
         if len(product_old_template_info.attribute_line_ids) <> 1:
-            _logger.error('Old template has no attibute or more than 1 attribute')
+            _logger.error('Old Template : number of Product_attribute_line must be egal to 1 not null not more than 1 number found = %s' % len(product_old_template_info.attribute_line_ids))
             return {}
 
-        if len(product_new_template_info.attribute_line_ids) == 0:
-            _logger.error('New template has no attibute')
+        if len(product_new_template_info.attribute_line_ids) <> 1:
+            _logger.error('New Template : number of Product_attribute_line must be egal to 1 not null not more than 1 number found = %s' % len(product_new_template_info.attribute_line_ids))
             return {}
 
         if product_old_template_info == product_new_template_info:
@@ -65,6 +65,7 @@ class product_product(osv.osv):
         attribute_line_found = False
         _logger.info('product_old_template_info.attribute_line_ids[0] =) '+ str(product_old_template_info.attribute_line_ids[0]))
         _logger.info('product_new_template_info.attribute_line_ids[0] =) '+ str(product_new_template_info.attribute_line_ids[0]))
+
         for attribute_line_id in product_new_template_info.attribute_line_ids:
             _logger.info('attribute_line_id =) '+ str(attribute_line_id))
             if (product_old_template_info.attribute_line_ids[0].attribute_id.name == attribute_line_id.attribute_id.name) :
@@ -121,7 +122,6 @@ class product_product(osv.osv):
         else:
             _logger.info('Product_attribute not found in new template check there is same attribute name in new and old template')
         _logger.info('button_change_template  }')
-
         return {}
 
     _columns = {
@@ -137,7 +137,13 @@ class product_template(osv.osv):
     _columns = {
         'message_type_ids': fields.many2many('message.type', 'message_type_rel', 'child_id', 'parent_id', 'Message list'),
     }
-
+    
+class product_attribute_value(osv.Model):
+    _inherit = "product.attribute.value"
+    _columns = {
+        'jsdata': fields.char("JS data", help="Here you can set a specific data to display icon on the website if the attibute type is 'Color' according to methode already implemented. exmple : ['rect2','red','blue']"),
+    }
+    
 # Structure reference :
 # class product_attribute(osv.osv):
 #     _name = "product.attribute"
