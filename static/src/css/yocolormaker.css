@@ -1,3 +1,97 @@
 .css_canvas_attribute_multi_color input {
     border: 1px solid black;
 }
+
+.input-product-detail-select-qty {
+    width: 10px;
+    line-height: 20px;
+}
+
+.btn-product-detail-add-to-cart {
+    border-radius: 4px;
+}
+
+.ul-product-detail-add-to-cart {
+  list-style:none;
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 5em;
+}
+
+
+.ul-product-detail-add-to-cart:hover {
+  background-color: #DDD;
+}
+
+.ul-product-detail-add-to-cart:hover li:nth-child(4){
+  visibility: visible;
+}
+
+.ul-product-detail-add-to-cart .product_price {
+  margin-top:0 !important;
+}
+.ul-product-detail-add-to-cart h4 {
+  margin-top:0 !important;
+}
+
+/* price*/
+.ul-product-detail-add-to-cart li:nth-child(1)
+{
+  width: 30em;
+  height: 2em;
+  position: absolute;
+  left: 55px;
+  top: 2em;
+  vertical-align:middle;
+}
+
+/* EAN*/
+.ul-product-detail-add-to-cart li:nth-child(2)
+{
+  width: 30em;
+  height: 2em;
+  position: absolute;
+  left: 55px;
+  top:10px;
+}
+
+/* color */
+.ul-product-detail-add-to-cart li:nth-child(3)
+{
+  width: 50px;
+  height: 4em;
+  position: absolute;
+  left: 10px;
+  top:1em;
+  vertical-align:middle;
+/*  line-height:4em;*/
+}
+
+/* quantity + buy*/
+.ul-product-detail-add-to-cart li:nth-child(4)
+{
+  height: 4em;
+/*  width: 300px;*/
+  position: absolute;
+  right: 10px;
+  top:10px;
+  vertical-align:middle;
+  visibility:hidden;
+}
+
+.ul-product-detail-add-to-cart li:nth-child(4) a{
+  vertical-align:baseline;
+}
+
+.js_add_cart_variants > .js_product > div,
+.js_add_cart_variants > .js_product > p,
+.js_add_cart_variants > .js_product > a {
+  display:none;
+}
+
+.ul-product-detail-add-to-cart .js_add_cart_variants > .js_product > div,
+.ul-product-detail-add-to-cart .js_add_cart_variants > .js_product > p,
+.ul-product-detail-add-to-cart .js_add_cart_variants > .js_product > a {
+  display:inline-block;
+}

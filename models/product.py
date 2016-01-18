@@ -150,7 +150,8 @@ class product_template(osv.osv):
 class product_attribute_value(osv.Model):
     _inherit = "product.attribute.value"
     _columns = {
-        'jsdata': fields.char("JS data", help="Here you can set a specific data to display icon on the website if the attibute type is 'Color' according to methode already implemented. exmple : ['rect2','red','blue']"),
+        'jsdata': fields.char("JS data", help="Here you can set a specific data to display icon on the website if the attibute type is 'Color' according to methode already implemented. exmple : ['rect2','red','blue'] \
+                                               ref : http://www.w3schools.com/html/html_colornames.asp"),
     }
 
 # Structure reference :
