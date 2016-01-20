@@ -78,11 +78,12 @@
                                     <t t-call="website_sale.product_price"/>
                                 </li>
                                 <li>
-                                    <span style="font-style: italic;" >EAN13 <span t-field="value_id.product_ids[0].ean13"/> - Reference (<span t-field="value_id.product_ids[0].default_code"/> )</span>
+                                    <span style="font-style: italic;" >EAN <span t-field="value_id.product_ids[0].ean13"/> - Reference (<span t-field="value_id.product_ids[0].default_code"/> )</span>
                                 </li>
                                 <li>
-                                    <label t-attf-style="background-color:#{value_id.color or value_id.name}"
-                                           t-attf-class="css_attribute_color #{'active' if not inc else ''}">
+                                    <!-- <label t-attf-style="background-color:#{value_id.color or value_id.name}"
+                                           t-attf-class="css_attribute_color #{'active' if not inc else ''}"> -->
+                                    <label t-attf-style="background-color:#{value_id.color or value_id.name}">
                                         <canvas style="margin-bottom: -5px;" data-type="yocolormaker"  t-att-data-params="value_id.jsdata" width="28px"  height="28px">
                                             <input type="radio" class="js_variant_change"
                                                 t-att-checked="'checked' if not inc else ''"
@@ -100,7 +101,6 @@
                                           <input name="product_id" t-att-value="product.product_variant_ids[0].id" type="hidden"/>
                                           <input type="text" class="js_quantity input-product-detail-select-qty" data-min="1" name="add_qty" value="1"/>
                                         </t>
-                                        <p t-if="len(product.product_variant_ids) &gt; 1" class="css_not_available_msg bg-danger" style="padding: 15px;">Product not available</p>
                                         <a id="add_to_cart" class="btn btn-primary btn-product-detail-add-to-cart btn-lg mt8 fa fa-shopping-cart js_check_product a-submit" href="#"></a>
                                       </div>
                                     </form>
