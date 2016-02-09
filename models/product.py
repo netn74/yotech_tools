@@ -28,6 +28,14 @@ from openerp.tools.float_utils import float_round, float_compare
 import logging
 _logger = logging.getLogger(__name__)
 
+class product_attribute(osv.osv):
+    _inherit = "product.attribute"
+    _order = 'sequence'
+
+    _columns = {
+        'sequence': fields.integer('Sequence', help="Determine the display order"),
+    }
+
 class product_product(osv.osv):
     _inherit = "product.product"
 
