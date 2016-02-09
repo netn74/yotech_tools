@@ -19,7 +19,7 @@
   height: 5em;
 }
 
-
+/*
 .ul-product-detail-add-to-cart:hover {
   background-color: #DDD;
 }
@@ -27,12 +27,29 @@
 .ul-product-detail-add-to-cart:hover li:nth-child(4){
   visibility: visible;
 }
+*/
+
+.ul-product-detail-add-to-cart.selected {
+  background-color: #DDD;
+}
+.ul-product-detail-add-to-cart.selected li:nth-child(4){
+  visibility: visible;
+}
+
+/* display price and qty even if product is not available */
+.css_not_available.js_product .product_price
+{display:block !important}
+
 
 .ul-product-detail-add-to-cart .product_price {
   margin-top:0 !important;
 }
 .ul-product-detail-add-to-cart h4 {
   margin-top:0 !important;
+}
+
+.ul-product-detail-add-to-cart input.js_variant_change{
+  visibility:hidden;
 }
 
 /* price*/
@@ -49,7 +66,7 @@
 /* EAN*/
 .ul-product-detail-add-to-cart li:nth-child(2)
 {
-  width: 30em;
+  width: 35em;
   height: 2em;
   position: absolute;
   left: 55px;
@@ -94,4 +111,11 @@
 .ul-product-detail-add-to-cart .js_add_cart_variants > .js_product > p,
 .ul-product-detail-add-to-cart .js_add_cart_variants > .js_product > a {
   display:inline-block;
+}
+
+label.yocolor{
+  height: 28px;
+  width: 28px;
+  margin-bottom: -5px;
+  border: 1px black solid;
 }
