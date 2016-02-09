@@ -26,6 +26,54 @@
             </field>
         </record>
 
+        <!-- Category Menu - overload kingfisher theme /kingfisher_theme/views/theme.xml -->
+        <template id="website_sale.categories_recursive" name="Category list">
+          <li t-att-class="'active selected' if c.id == int(category or 0) else ''">
+              <a t-att-href="keep('/shop/category/' + slug(c), category=0)" t-field="c.name"></a>
+              <t t-if="c.child_id"><span class="sub-cat-1"/></t>
+              <ul t-if="c.child_id" class="nav nav-pills nav-stacked mt16">
+                  <t t-foreach="c.child_id" t-as="c">
+                     <li t-att-class="'active selected' if c.id == int(category or 0) else ''">
+                          <a t-att-href="keep('/shop/category/' + slug(c), category=0)" t-field="c.name"></a>
+                          <t t-if="c.child_id"><span class="sub-cat-2"/></t>
+                          <ul t-if="c.child_id" class="nav nav-pills nav-stacked mt16">
+                              <t t-foreach="c.child_id" t-as="c1">
+                            <li t-att-class="'active selected' if c1.id == int(category or 0) else ''">
+                                  <a t-att-href="keep('/shop/category/' + slug(c1), category=0)" t-field="c1.name"></a>
+
+                                  <t t-if="c1.child_id"><span class="sub-cat-3"/></t>
+                                  <ul t-if="c1.child_id" class="nav nav-pills nav-stacked mt16">
+                                      <t t-foreach="c1.child_id" t-as="c2">
+                                    <li t-att-class="'active selected' if c2.id == int(category or 0) else ''">
+                                          <a t-att-href="keep('/shop/category/' + slug(c2), category=0)" t-field="c2.name"></a>
+                                  <t t-if="c2.child_id"><span class="sub-cat-4"/></t>
+                                  <ul t-if="c2.child_id" class="nav nav-pills nav-stacked mt16">
+                                      <t t-foreach="c2.child_id" t-as="c3">
+                                    <li t-att-class="'active selected' if c3.id == int(category or 0) else ''">
+                                          <a t-att-href="keep('/shop/category/' + slug(c3), category=0)" t-field="c3.name"></a>
+                                          <t t-if="c3.child_id"><span class="sub-cat-5"/></t>
+                                          <ul t-if="c3.child_id" class="nav nav-pills nav-stacked mt16">
+                                              <t t-foreach="c3.child_id" t-as="c4">
+                                            <li t-att-class="'active selected' if c4.id == int(category or 0) else ''">
+                                                  <a t-att-href="keep('/shop/category/' + slug(c4), category=0)" t-field="c4.name"></a>
+                                              </li>
+                                              </t>
+                                          </ul>
+                                      </li>
+                                      </t>
+                                  </ul>
+                                      </li>
+                                      </t>
+                                  </ul>
+                                      </li>
+                                      </t>
+                                  </ul>
+                      </li>
+                  </t>
+              </ul>
+          </li>
+        </template>
+
         <!-- Add Btn Add to Cart On each variant line -->
         <template id="yotech_tools_products_variants" inherit_id="website_sale.variants">
             <xpath expr="//ul[@t-att-data-attribute_value_ids='attribute_value_ids']" position="replace">
@@ -78,19 +126,17 @@
                                     <t t-call="website_sale.product_price"/>
                                 </li>
                                 <li>
-                                    <span style="font-style: italic;" >EAN <span t-field="value_id.product_ids[0].ean13"/> - Reference (<span t-field="value_id.product_ids[0].default_code"/> )</span>
+                                    <span style="font-style: italic;" >EAN <span t-field="value_id.product_ids[0].ean13"/> - Reference (<span t-field="value_id.product_ids[0].default_code"/> ) - <span t-field="value_id.name"/></span>
                                 </li>
                                 <li>
                                     <!-- <label t-attf-style="background-color:#{value_id.color or value_id.name}"
                                            t-attf-class="css_attribute_color #{'active' if not inc else ''}"> -->
-                                    <label t-attf-style="background-color:#{value_id.color or value_id.name}">
-                                        <canvas style="margin-bottom: -5px;" data-type="yocolormaker"  t-att-data-params="value_id.jsdata" width="28px"  height="28px">
-                                            <input type="radio" class="js_variant_change"
-                                                t-att-checked="'checked' if not inc else ''"
-                                                t-att-name="'attribute-%s-%s' % (product.id, variant_id.attribute_id.id)"
-                                                t-att-value="value_id.id"
-                                                t-att-title="value_id.name"/>
-                                        </canvas>
+                                    <label class="yocolor" data-type="yocolormaker" t-att-data-params="value_id.jsdata" t-attf-style="background-color:#{value_id.color or value_id.name}">
+                                        <input type="radio" class="js_variant_change"
+                                            t-att-checked="'checked' if not inc else ''"
+                                            t-att-name="'attribute-%s-%s' % (product.id, variant_id.attribute_id.id)"
+                                            t-att-value="value_id.id"
+                                            t-att-title="value_id.name"/>
                                     </label>
                                     <t t-set="inc" t-value="inc+1"/>
                                 </li>
