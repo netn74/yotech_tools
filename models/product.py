@@ -157,9 +157,43 @@ class product_template(osv.osv):
 
 class product_attribute_value(osv.Model):
     _inherit = "product.attribute.value"
+
+    def _get_product_info(self, cr, uid, ids, attribute_value, field_name, arg, context=None):
+        for product_info in attribute_value.product_ids:
+            for value_id in product_info.attribute_value_ids:
+                if value_id.attribute_id == attribute_value.attribute_id:
+                    val_return = product_info
+        return val_return
+
+    def _get_ean13(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        for attribute_value in self.browse(cr, uid, ids):
+            product_info = self._get_product_info(cr, uid, ids, attribute_value, field_name, arg, context)
+            res[attribute_value.id] = product_info.ean13
+        return res
+
+    def _get_defaultcode(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        for attribute_value in self.browse(cr, uid, ids):
+            product_info = self._get_product_info(cr, uid, ids, attribute_value, field_name, arg, context)
+            res[attribute_value.id] = product_info.default_code
+        return res
+
+    def _get_prod_id(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        for attribute_value in self.browse(cr, uid, ids):
+            product_info = self._get_product_info(cr, uid, ids, attribute_value, field_name, arg, context)
+            res[attribute_value.id] = product_info.id
+        return res
+
+
+
     _columns = {
         'jsdata': fields.char("JS data", help="Here you can set a specific data to display icon on the website if the attibute type is 'Color' according to methode already implemented. exmple : ['rect2','red','blue'] \
                                                ref : http://www.w3schools.com/html/html_colornames.asp"),
+        'get_ean13': fields.function(_get_ean13, string="EAN13", type="char"),
+        'get_defaultcode': fields.function(_get_defaultcode, string="Ref", type="char"),
+        'get_prod_id': fields.function(_get_prod_id, string="Product_id", type="integer"),
     }
 
 # Structure reference :
