@@ -52,13 +52,54 @@ class Website(openerp.addons.web.controllers.main.Home):
         if ((product.qty_available - float(add_qty)) < 0) :
             qty_ok = False
 
-        _logger.info('len(product.product_variant_ids) = ' + str(len(product.product_variant_ids)))
+        _logger.info('len(product.product_variant_ids) =) ' + str(len(product.product_variant_ids)))
         _logger.info('product.qty_available =) ' + str(product.qty_available))
 
 
         # If you want to stay on same product page when product has more than one variant
+        request.website.sale_get_order(force_create=1)._cart_update(product_id=int(product_id), add_qty=float(add_qty), set_qty=float(set_qty))
         if (len(product.product_variant_ids) > 1):
-            request.website.sale_get_order(force_create=1)._cart_update(product_id=int(product_id), add_qty=float(add_qty), set_qty=float(set_qty))
             return request.redirect("/shop/product/%s" % slug(product.product_tmpl_id))
         else:
             return request.redirect("/shop/cart")
+
+def get_pricelist():
+    cr, uid, context, pool = request.cr, request.uid, request.context, request.registry
+    sale_order = context.get('sale_order')
+    if sale_order:
+        pricelist = sale_order.pricelist_id
+    else:
+        partner = pool['res.users'].browse(cr, SUPERUSER_ID, uid, context=context).partner_id
+        pricelist = partner.property_product_pricelist
+    return pricelist
+
+# inherit Website_sale Controller
+class Yo_WebsiteSale(openerp.addons.website_sale.controllers.main.website_sale):
+
+    def get_pricelist(self):
+        return get_pricelist()
+
+    def get_attribute_value_ids(self, product):
+        cr, uid, context, pool = request.cr, request.uid, request.context, request.registry
+        currency_obj = pool['res.currency']
+        _logger.info(" get_attribute_value_ids  { ... ")
+        attribute_value_ids = []
+        visible_attrs = set(l.attribute_id.id
+                                for l in product.attribute_line_ids
+                                    if len(l.value_ids) > 1)
+        _logger.info("visible_attrs =) " + str(visible_attrs))
+        if request.website.pricelist_id.id != context['pricelist']:
+            _logger.info("context['pricelist']")
+            website_currency_id = request.website.currency_id.id
+            currency_id = self.get_pricelist().currency_id.id
+            for p in product.product_variant_ids:
+                _logger.info(" p =) " + str(p))
+                price = currency_obj.compute(cr, uid, website_currency_id, currency_id, p.lst_price)
+                attribute_value_ids.append([p.id, [v.id for v in p.attribute_value_ids if v.attribute_id.id in visible_attrs], p.price, price])
+        else:
+            attribute_value_ids = [[p.id, [v.id for v in p.attribute_value_ids if v.attribute_id.id in visible_attrs], p.price, p.lst_price]
+                for p in product.product_variant_ids]
+            _logger.info(" len(attribute_value_ids) " + str(len(attribute_value_ids)))
+            _logger.info("attribute_value_ids" + str(attribute_value_ids))
+        _logger.info(" get_attribute_value_ids  ... } ")
+        return attribute_value_ids
