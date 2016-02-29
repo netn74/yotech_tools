@@ -85,6 +85,11 @@
                         <t t-if="variant_id.attribute_id.type == 'color'">
                             <t t-set="attr_color_available" t-value="1"/>
                         </t>
+                        <t t-if="not lang_selected">
+                            <t t-set="lang_selected" t-value="0"/>
+                        </t>
+
+
                         <!-- select -->
                         <t t-if="variant_id.attribute_id.type in ['select', 'hidden']">
                         <strong t-field="variant_id.attribute_id.name"/>
