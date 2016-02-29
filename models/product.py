@@ -39,6 +39,27 @@ class product_attribute(osv.osv):
 class product_product(osv.osv):
     _inherit = "product.product"
 
+
+
+    def _product_cart_qty(self, cr, uid, ids, field_name, arg, context=None):
+        _logger.info("product_cart_qty ids ")
+        res = dict()
+        i = 0
+        website_obj = self.pool.get('website')
+        order = website_obj.sale_get_order(cr, uid, ids[0], context=context)
+        if order:
+            _logger.info("order  " + str(order))
+
+            for product in self.browse(cr, uid, ids, context=context):
+                qty = 0
+                _logger.info("product  " + str(product))
+                for line in order.website_order_line:
+                    _logger.info("line  " + str(line))
+                    if product.id == line.product_id.id:
+                        qty = int(line.product_uom_qty or 0)
+                res[product.id] = qty
+        return res
+
     def button_switch_template(self, cr, uid, ids, context=None):
         """ Utility method used to switch of Product_template """
 
@@ -143,9 +164,7 @@ class product_product(osv.osv):
 
     _columns = {
         'product_new_tmpl_id': fields.many2one('product.template', 'New Product Template Proposal'),
-        #UPDATE product_attribute_line_product_attribute_value_rel SET line_id=7 WHERE line_id=1;
-        #'attributes_proposal_ids' : fields.one2many('product.attribute.line', 'product_tmpl_id', 'Product Attributes')
-        #'attributes_ids' : fields.one2many('product.attribute.line', 'product_tmpl_id', 'Product Attributes')
+        'product_cart_quantity': fields.function(_product_cart_qty, type='integer', string='Product Cart Quantity'),
     }
 
 class product_template(osv.osv):

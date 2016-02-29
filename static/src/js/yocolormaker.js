@@ -1,50 +1,27 @@
 $(document).ready(function() {
 
-/*    function rect2(canvas, c) {
-          var ctx = canvas.getContext("2d");
-          ctx.fillStyle = c[0];
-          ctx.fillRect(0, 0, canvas.width/2, canvas.height);
-          ctx.fillStyle = c[1];
-          ctx.fillRect(canvas.width/2, 0, canvas.width/2, canvas.height);
-        } 
-    function rect2(canvas, c) {
-          div = $("<div class=\"yocolor\" />");
-          backgroundvalue  = "linear-gradient(to right, ";
-          backgroundvalue += c[0] + " 0%,";
-          backgroundvalue += c[0] + " 50%,";
-          backgroundvalue += c[1] + " 50%,";
-          backgroundvalue += c[1] + " 100%)";
-          div.css("background",backgroundvalue);
-          div.height( $(canvas).height() );
-          div.width( $(canvas).width() );
-          div.html( $(canvas).html() );
-          $(canvas).replaceWith(div);
-    } 
+  $('.product-info').each(function (event) {
+    var product_info = this;
 
-    function rect3(canvas, c) {
-          var ctx = canvas.getContext("2d");
-          ctx.fillStyle = c[0];
-          ctx.fillRect(0, 0, canvas.width/3, canvas.height);
-          ctx.fillStyle = c[1];
-          ctx.fillRect(canvas.width/3, 0, canvas.width/2, canvas.height);
-          ctx.fillStyle = c[2];
-          ctx.fillRect(canvas.width*2/3, 0, canvas.width/2, canvas.height);
-        } 
+    /* enable product lang selected only */
+    $( product_info ).on('change', "select[name='language_select']",
+      function () {
+        var $all_product_lines = $("ul[class='ul-product-detail-add-to-cart']", product_info);
+        $all_product_lines.attr("style","display:none;");
 
+        var $select = $("select[name='language_select']");
 
-    function rect4(canvas, c) {
-          var ctx = canvas.getContext("2d");
-          ctx.fillStyle = c[0];
-          ctx.fillRect(0, 0, canvas.width/2, canvas.height/2);
-          ctx.fillStyle = c[1];
-          ctx.fillRect(canvas.width/2, 0, canvas.width/2, canvas.height/2);
-          ctx.fillStyle = c[2];
-          ctx.fillRect(canvas.width/2, canvas.height/2, canvas.width/2, canvas.height/2);
-          ctx.fillStyle = c[3];
-          ctx.fillRect(0, canvas.height/2, canvas.width/2, canvas.height/2);
+        $("li[class='li-product-detail']", product_info).each(function () {
+          data_lang = $( this ).attr("data-lang");
+          if (data_lang === $select.val() ) {
+            $( this ).parent().attr("style","display:block;");
+          }
+        });
         }
-
-*/
+      )
+      $( product_info ).find("select[name='language_select']").change();
+    }
+  )
 
     function rect2(tag, c) {
       backgroundvalue  = "linear-gradient(to right, ";
@@ -81,23 +58,31 @@ $(document).ready(function() {
 
 
   $( "label[data-type='yocolormaker']" ).each(function( index ) {
-    $(this).attr("data-params");
-    data   = JSON.parse($(this).attr("data-params"));
-    drawfunc   = data[0];
-    params = data.slice(1,data.length);
-    ;
+    if ($(this).attr("data-params")) {
+      $(this).attr("data-params");
+      data   = JSON.parse($(this).attr("data-params"));
+      drawfunc = data[0];
+      params = data.slice(1,data.length);
+    }
+    else {
+      drawfunc = "rect1";
+    }
     switch (drawfunc) {
+      case "rect1": break;
       case "rect2": rect2(this, params ); break;
       case "rect3": rect3(this, params ); break;
-      case "rect4": rect4(this, params ); break;    
+      case "rect4": rect4(this, params ); break;
     }
   });
 
   /* find default value and select it */
-  $(".ul-product-detail-add-to-cart").find("input[checked=checked]").parent().parent().parent().addClass("selected");
+  /* $(".ul-product-detail-add-to-cart").find("input[checked=checked]").parent().parent().parent().addClass("selected"); */
+  lang = $("select[name='language_select']").val();
+  selector=".li-product-detail[data-lang="+lang+"]";
+  $(selector).first().parent().addClass("selected");
 
   /* when over .ul-product-detail-add-to-cart, select the corresponding variant*/
-  $(".ul-product-detail-add-to-cart").hover(  
+  $(".ul-product-detail-add-to-cart").hover(
     function() {
       /* 1. unselect previous variant */
       $(".js_add_cart_variants").find("input[checked=checked]").prop( "checked", false );
