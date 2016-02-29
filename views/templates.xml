@@ -85,11 +85,9 @@
                         <t t-if="variant_id.attribute_id.type == 'color'">
                             <t t-set="attr_color_available" t-value="1"/>
                         </t>
-                        <t t-if="not lang_selected">
-                            <t t-set="lang_selected" t-value="0"/>
-                        </t>
-
-
+                         <t t-if="not lang_selected">
+                             <t t-set="lang_selected" t-value="0"/>
+                         </t>
                         <!-- select -->
                         <t t-if="variant_id.attribute_id.type in ['select', 'hidden']">
                         <strong t-field="variant_id.attribute_id.name"/>
@@ -131,11 +129,23 @@
                             </t>
                         </t>
                         <li class="li-product-detail" t-att-data-lang="lang_id" >
-                            <span t-field="product_id.lst_price" style="white-space: nowrap;" t-field-options='{
+                            <!-- <span t-field="product_id.lst_price" style="white-space: nowrap;" t-field-options='{
                                                  "widget": "monetary",
                                                   "from_currency": "product.company_id.currency_id",
                                                  "display_currency": "user_id.partner_id.property_product_pricelist.currency_id"
-                                             }'/>
+                                             }'/> -->
+                            <t t-if="(compute_currency(product_id.lst_price) - product_id.price) &gt; 0.1">
+                              <del class="text-danger" style="white-space: nowrap;"
+                                t-field="product_id.lst_price" t-field-options='{
+                                    "widget": "monetary",
+                                    "from_currency": "product.company_id.currency_id",
+                                    "display_currency": "user_id.partner_id.property_product_pricelist.currency_id"
+                                }'/>&amp;nbsp;
+                            </t>
+                            <span t-field="product_id.price" style="white-space: nowrap;" t-field-options='{
+                                 "widget": "monetary",
+                                 "display_currency": "user_id.partner_id.property_product_pricelist.currency_id"
+                             }'/>
                             <t t-if ="product_id.product_cart_quantity">
                                 <span><i class="fa fa-shopping-cart"></i>
                                     <span t-attf-class="my_cart_quantity label label-primary" t-esc="product_id.product_cart_quantity or ''"/>
