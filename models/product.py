@@ -28,6 +28,32 @@ from openerp.tools.float_utils import float_round, float_compare
 import logging
 _logger = logging.getLogger(__name__)
 
+
+class product_pricelist(osv.osv):
+    _inherit = "product.pricelist"
+
+    def price_rule_get_multi(self, cr, uid, ids, products_by_qty_by_partner, context=None):
+        """multi products 'price_get'.
+           @param ids:
+           @param products_by_qty:
+           @param partner:
+           @param context: {
+             'date': Date of the pricelist (%Y-%m-%d),}
+           @return: a dict of dict with product_id as key and a dict 'price by pricelist' as value
+        """
+        if not ids:
+            ids = self.pool.get('product.pricelist').search(cr, uid, [], context=context)
+        results = {}
+        _logger.info("products_by_qty_by_partner  " + str(products_by_qty_by_partner))
+        _logger.info("context  " + str(context))
+        for pricelist in self.browse(cr, uid, ids, context=context):
+
+            subres = self._price_rule_get_multi(cr, uid, pricelist, products_by_qty_by_partner, context=context)
+            for product_id,price in subres.items():
+                results.setdefault(product_id, {})
+                results[product_id][pricelist.id] = price
+        return results
+
 class product_attribute(osv.osv):
     _inherit = "product.attribute"
     _order = 'sequence'

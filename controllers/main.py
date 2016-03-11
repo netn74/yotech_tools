@@ -57,6 +57,45 @@ class QueryURL(object):
 # inherit website_sale Controller
 class website_sale(openerp.addons.website_sale.controllers.main.website_sale):
 
+    @http.route(['/shop/get_unit_price'], type='json', auth="public", methods=['POST'], website=True)
+    def get_unit_price(self, product_ids, add_qty, use_order_pricelist=False, **kw):
+        _logger.info(" get_unit_price  { ... ")
+        cr, uid, context, pool = request.cr, request.uid, request.context, request.registry
+        products = pool['product.product'].browse(cr, uid, product_ids, context=context)
+        partner = pool['res.users'].browse(cr, uid, uid, context=context).partner_id
+        if use_order_pricelist:
+            pricelist_id = request.session.get('sale_order_code_pricelist_id') or partner.property_product_pricelist.id
+        else:
+            pricelist_id = partner.property_product_pricelist.id
+        prices = pool['product.pricelist'].price_rule_get_multi(cr, uid, [], [(product, add_qty, partner) for product in products], context=context)
+        _logger.info(" get_unit_price   ... }")
+        return {product_id: prices[product_id][pricelist_id][0] for product_id in product_ids}
+
+    def get_attribute_value_ids(self, product):
+        cr, uid, context, pool = request.cr, request.uid, request.context, request.registry
+        currency_obj = pool['res.currency']
+        #_logger.info(" get_attribute_value_ids  { ... ")
+        attribute_value_ids = []
+        visible_attrs = set(l.attribute_id.id
+                                for l in product.attribute_line_ids
+                                    if len(l.value_ids) > 1)
+        _logger.info("visible_attrs =) " + str(visible_attrs))
+        if request.website.pricelist_id.id != context['pricelist']:
+            #_logger.info("context['pricelist']")
+            website_currency_id = request.website.currency_id.id
+            currency_id = self.get_pricelist().currency_id.id
+            for p in product.product_variant_ids:
+                #_logger.info(" p =) " + str(p))
+                price = currency_obj.compute(cr, uid, website_currency_id, currency_id, p.lst_price)
+                attribute_value_ids.append([p.id, [v.id for v in p.attribute_value_ids if v.attribute_id.id in visible_attrs], p.price, price])
+        else:
+            attribute_value_ids = [[p.id, [v.id for v in p.attribute_value_ids if v.attribute_id.id in visible_attrs], p.price, p.lst_price]
+                for p in product.product_variant_ids]
+            #_logger.info(" len(attribute_value_ids) " + str(len(attribute_value_ids)))
+            #_logger.info("attribute_value_ids" + str(attribute_value_ids))
+        #_logger.info(" get_attribute_value_ids  ... } ")
+        return attribute_value_ids
+
     @http.route(['/shop/product/<model("product.template"):product>'], type='http', auth="public", website=True)
     def product(self, product, category='', search='', lang_selected='', **kwargs):
         cr, uid, context, pool = request.cr, request.uid, request.context, request.registry
@@ -88,6 +127,7 @@ class website_sale(openerp.addons.website_sale.controllers.main.website_sale):
         if not context.get('pricelist'):
             context['pricelist'] = int(self.get_pricelist())
             product = template_obj.browse(cr, uid, int(product), context=context)
+
 
         values = {
             'search': search,
@@ -141,43 +181,3 @@ class Website(openerp.addons.web.controllers.main.Home):
         else:
             return request.redirect("/shop/cart")
 
-def get_pricelist():
-    cr, uid, context, pool = request.cr, request.uid, request.context, request.registry
-    sale_order = context.get('sale_order')
-    if sale_order:
-        pricelist = sale_order.pricelist_id
-    else:
-        partner = pool['res.users'].browse(cr, SUPERUSER_ID, uid, context=context).partner_id
-        pricelist = partner.property_product_pricelist
-    return pricelist
-
-# inherit Website_sale Controller
-class Yo_WebsiteSale(openerp.addons.website_sale.controllers.main.website_sale):
-
-    def get_pricelist(self):
-        return get_pricelist()
-
-    def get_attribute_value_ids(self, product):
-        cr, uid, context, pool = request.cr, request.uid, request.context, request.registry
-        currency_obj = pool['res.currency']
-        #_logger.info(" get_attribute_value_ids  { ... ")
-        attribute_value_ids = []
-        visible_attrs = set(l.attribute_id.id
-                                for l in product.attribute_line_ids
-                                    if len(l.value_ids) > 1)
-        _logger.info("visible_attrs =) " + str(visible_attrs))
-        if request.website.pricelist_id.id != context['pricelist']:
-            #_logger.info("context['pricelist']")
-            website_currency_id = request.website.currency_id.id
-            currency_id = self.get_pricelist().currency_id.id
-            for p in product.product_variant_ids:
-                #_logger.info(" p =) " + str(p))
-                price = currency_obj.compute(cr, uid, website_currency_id, currency_id, p.lst_price)
-                attribute_value_ids.append([p.id, [v.id for v in p.attribute_value_ids if v.attribute_id.id in visible_attrs], p.price, price])
-        else:
-            attribute_value_ids = [[p.id, [v.id for v in p.attribute_value_ids if v.attribute_id.id in visible_attrs], p.price, p.lst_price]
-                for p in product.product_variant_ids]
-            #_logger.info(" len(attribute_value_ids) " + str(len(attribute_value_ids)))
-            #_logger.info("attribute_value_ids" + str(attribute_value_ids))
-        #_logger.info(" get_attribute_value_ids  ... } ")
-        return attribute_value_ids
