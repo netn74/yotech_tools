@@ -119,3 +119,7 @@ label.yocolor{
   margin-bottom: -5px;
   border: 1px black solid;
 }
+
+@media (max-width: 1200px){
+  .product-detail .ean{ display:none; !important}
+}

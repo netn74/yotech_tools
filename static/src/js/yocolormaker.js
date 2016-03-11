@@ -78,7 +78,12 @@ $(document).ready(function() {
   /* find default value and select it */
   /* $(".ul-product-detail-add-to-cart").find("input[checked=checked]").parent().parent().parent().addClass("selected"); */
   lang = $("select[name='language_select']").val();
-  selector=".li-product-detail[data-lang="+lang+"]";
+  if (lang) {
+    selector=".li-product-detail[data-lang="+lang+"]";
+  }
+  else {
+    selector=".li-product-detail";
+  }
   $(selector).first().parent().addClass("selected");
 
   /* when over .ul-product-detail-add-to-cart, select the corresponding variant*/

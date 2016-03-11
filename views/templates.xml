@@ -103,7 +103,7 @@
                         </select>
                         <!-- select Size Model -->
                         <t t-if="variant_id.attribute_id.name == 'size' or variant_id.attribute_id.name == 'model'">
-                            <span style="font-style: italic;" > EAN <span t-field="product.ean13"/> - Reference ( <span t-field="product.default_code"/> ) </span>
+                            <span style="font-style: italic;" class="ean"> EAN <span t-field="product.ean13"/> -</span><span> Ref ( <span t-field="product.default_code"/> ) </span>
                             <br/><br/>
                             <form t-att-action="keep('/shop/cart/update')" style="display:block;" class="js_add_cart_variants" method="POST">
                               <div>
@@ -159,7 +159,7 @@
                                 <li>
                                     <!-- debug info line number -->
                                     <!-- <span style="font-style: italic;" ><t t-esc="inc" /> : EAN <span t-field="product_id.ean13"/> - Reference ( <span t-field="product_id.default_code"/> ) </span> -->
-                                    <span style="font-style: italic;" >EAN <span t-field="product_id.ean13"/> - Reference ( <span t-field="product_id.default_code"/> ) - <t t-esc="value_id.name"/> </span>
+                                    <span style="font-style: italic;" class="ean" >EAN <span t-field="product_id.ean13"/> - </span><span> Ref ( <span t-field="product_id.default_code"/> ) - <span class="ean"> - <t t-esc="value_id.name"/> </span></span>
                                     <t t-set="inc" t-value="inc+1"/>
                                 </li>
 
