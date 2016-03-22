@@ -148,36 +148,52 @@ class website_sale(openerp.addons.website_sale.controllers.main.website_sale):
 # inherit Website Controller
 class Website(openerp.addons.web.controllers.main.Home):
 
+# Original
+    # @http.route(['/shop/cart/update'], type='http', auth="public", methods=['POST'], website=True)
+    # def cart_update(self, product_id, add_qty=1, set_qty=0, **kw):
+    #     cr, uid, context = request.cr, request.uid, request.context
+    #     request.website.sale_get_order(force_create=1)._cart_update(product_id=int(product_id), add_qty=float(add_qty), set_qty=float(set_qty))
+    #     return request.redirect("/shop/cart")
+
     @http.route(['/shop/cart/update'], type='http', auth="public", methods=['POST'], website=True)
     def cart_update(self, product_id, add_qty=1, set_qty=0, lang_selected=1, **kw):
         cr, uid, context = request.cr, request.uid, request.context
 
-        product_template_obj = request.registry.get('product.template')
         product_product_obj = request.registry.get('product.product')
-        # _logger.info('product_id =) ' + str(product_id))
-        # _logger.info('add_qty =) ' + str(add_qty))
+        _logger.info('product_id =) ' + str(product_id))
+        _logger.info('add_qty =) ' + str(add_qty))
         # _logger.info('set_qty =) ' + str(set_qty))
-        _logger.info('lang_selected =) ' + str(lang_selected))
+        #_logger.info('lang_selected =) ' + str(lang_selected))
 
         product = product_product_obj.browse(cr, uid, int(product_id), context=context)
 
-        qty_ok = True
+        _logger.info('product =) ' + str(product))
 
-        if ((product.qty_available - float(add_qty)) < 0) :
-            qty_ok = False
+        try:
+            if product_template.product_variant_ids:
+                variant_number = len(product.product_variant_ids)
+        except:
+            variant_number = 1
+
+        _logger.info('len(variant_number) =) ' + str(variant_number))
+        #qty_ok = True
+
+        #if ((product.qty_available - float(add_qty)) < 0) :
+        #    qty_ok = False
 
         # _logger.info('len(product.product_variant_ids) =) ' + str(len(product.product_variant_ids)))
         # _logger.info('product.qty_available =) ' + str(product.qty_available))
 
-        # If you want to stay on same product page when product has more than one variant
         request.website.sale_get_order(force_create=1)._cart_update(product_id=int(product_id), add_qty=float(add_qty), set_qty=float(set_qty))
 
-        if (len(product.product_variant_ids) > 1):
-
+        # If you want to stay on same product page when product has more than one variant
+        if (variant_number > 1):
             #values = self.checkout_values()
             #return request.website.render("website_sale.checkout", values)
-
-            return request.redirect("/shop/product/%s?lang_selected=%s" % (slug(product.product_tmpl_id),lang_selected))
+            if lang_selected == 1 :
+                return request.redirect("/shop/product/%s" % (slug(product.product_tmpl_id)))
+            else:
+                return request.redirect("/shop/product/%s?lang_selected=%s" % (slug(product.product_tmpl_id),lang_selected))
         else:
             return request.redirect("/shop/cart")
 
