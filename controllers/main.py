@@ -156,24 +156,33 @@ class Website(openerp.addons.web.controllers.main.Home):
     #     return request.redirect("/shop/cart")
 
     @http.route(['/shop/cart/update'], type='http', auth="public", methods=['POST'], website=True)
-    def cart_update(self, product_id, add_qty=1, set_qty=0, lang_selected=1, **kw):
+    def cart_update(self, product_id, add_qty=1, set_qty=0, lang_selected=1, item_type='alone', **kw):
         cr, uid, context = request.cr, request.uid, request.context
 
         product_product_obj = request.registry.get('product.product')
+        product_template_obj = request.registry.get('product.template')
+
         _logger.info('product_id =) ' + str(product_id))
         _logger.info('add_qty =) ' + str(add_qty))
         # _logger.info('set_qty =) ' + str(set_qty))
-        #_logger.info('lang_selected =) ' + str(lang_selected))
+        _logger.info('lang_selected =) ' + str(lang_selected))
+        #_logger.info('context =) ' + str(context))
+        _logger.info('item_type =) ' + str(item_type))
 
         product = product_product_obj.browse(cr, uid, int(product_id), context=context)
 
-        _logger.info('product =) ' + str(product))
-
-        try:
-            if product_template.product_variant_ids:
-                variant_number = len(product.product_variant_ids)
-        except:
+        # If product_id comes from variant
+        if item_type == 'variant':
+            variant_number = len(product.product_variant_ids)
+        else :
+            # If product_id comes from product alone
             variant_number = 1
+            product_template_ids = product_template_obj.search(cr, uid, [('id', '=', product_id)], context=context)
+            product_from_template_read = product_template_obj.read(cr, uid, product_template_ids, ['name','product_variant_ids'], context=context)[0]
+            _logger.info('product_from_template_read =) ' + str(product_from_template_read))
+            product_id = product_from_template_read['product_variant_ids'][0]
+
+        _logger.info('product_id =) ' + str(product_id))
 
         _logger.info('len(variant_number) =) ' + str(variant_number))
         #qty_ok = True
@@ -183,11 +192,12 @@ class Website(openerp.addons.web.controllers.main.Home):
 
         # _logger.info('len(product.product_variant_ids) =) ' + str(len(product.product_variant_ids)))
         # _logger.info('product.qty_available =) ' + str(product.qty_available))
+        _logger.info('product_id =) ' + str(product_id))
 
         request.website.sale_get_order(force_create=1)._cart_update(product_id=int(product_id), add_qty=float(add_qty), set_qty=float(set_qty))
 
         # If you want to stay on same product page when product has more than one variant
-        if (variant_number > 1):
+        if item_type == 'variant':
             #values = self.checkout_values()
             #return request.website.render("website_sale.checkout", values)
             if lang_selected == 1 :
@@ -195,5 +205,5 @@ class Website(openerp.addons.web.controllers.main.Home):
             else:
                 return request.redirect("/shop/product/%s?lang_selected=%s" % (slug(product.product_tmpl_id),lang_selected))
         else:
-            return request.redirect("/shop/cart")
+           return request.redirect("/shop/cart")
 
