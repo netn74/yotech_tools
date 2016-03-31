@@ -102,16 +102,17 @@
                             </t>
                         </select>
                         <!-- select Size Model -->
-                        <t t-if="variant_id.attribute_id.name == 'size' or variant_id.attribute_id.name == 'model'">
+                        <!-- <t t-if="variant_id.attribute_id.name == 'size' or variant_id.attribute_id.name == 'model'">
                             <span style="font-style: italic;" class="ean"> EAN <span t-field="product.ean13"/> -</span><span> Ref ( <span t-field="product.default_code"/> ) </span>
                             <br/><br/>
                             <form t-att-action="keep('/shop/cart/update')" style="display:block;" class="js_add_cart_variants" method="POST">
                               <div>
                                 <input name="product_id" t-att-value="product.id" type="hidden"/>
+                                <input name="item_type" value="variant2" type="hidden"/>
                                 <a id="add_to_cart" class="btn btn-primary btn-product-detail-add-to-cart btn-lg mt8 fa fa-shopping-cart js_check_product a-submit" href="#"> Add to Cart</a>
                               </div>
                             </form>
-                        </t>
+                        </t> -->
                         </t>
                     </li>
                 </t>
@@ -177,6 +178,7 @@
                                       <div class="js_product">
                                         <t t-placeholder="select">
                                           <input name="product_id" t-att-value="product_id.id" type="hidden"/>
+                                          <input name="item_type" value="variant" type="hidden"/>
                                           <input name="lang_selected" t-att-value="lang_id" type="hidden"/>
                                           <input type="text" class="js_quantity input-product-detail-select-qty" data-min="1" name="add_qty" value="1"/>
                                         </t>
@@ -203,7 +205,9 @@
                         <h1 itemprop="name" t-field="product.name">Product Name</h1>
                         <span> Weight : <span t-field="product.weight"/></span><br/>
                         <span> Weight Net : <span t-field="product.weight_net"/></span><br/>
-                        <span> Diameter : <span t-field="product.diameter"/></span><br/>
+                        <t t-if="product.diameter > 0 ">
+                            <span> Diameter : <span t-field="product.diameter"/></span><br/>
+                        </t>
                         <span itemprop="url" style="display:none;" t-esc="'/shop/product/%s' % slug(product)"/>
                         <span t-if="product.description_sale and len(product.description_sale) &gt; 200">
                              <t t-set="description" t-value="product.description_sale[:200] and product.description_sale[:200].replace('+', '\n')+'...'"/>
@@ -214,13 +218,34 @@
                         </span>
                         <br/>
                         <t t-call="yotech_tools.yotech_tools_products_variants"/>
-                        <t t-if="len(product.attribute_line_ids) == 0" >
-                            <span style="font-style: italic;" > EAN <span t-field="product.ean13"/> - Reference ( <span t-field="product.default_code"/> ) </span>
+                        <t t-set="attr_color_found" t-value="0"/> <!-- attr_color_found = no_variant_detected -->
+                        <t t-if="len(product.attribute_line_ids) > 0 ">
+                            <t t-set="attr_color_found" t-value="1"/> <!-- attr_color_found = variant_but_no_color -->
+                            <t t-foreach="product.attribute_line_ids" t-as="variant_id">
+                                <t t-if="variant_id.attribute_id.type == 'color'">
+                                    <t t-set="attr_color_found" t-value="2"/> <!-- attr_color_found = variant_with_color -->
+                                </t>
+                            </t>
+                            <!-- <t t-if="(attr_color_found == variant_but_no_color)">
+                                <span style="font-style: italic;" > EAN <span t-field="product.ean13"/> - Ref ( <span t-field="product.default_code"/> ) </span>
+                                <br/><br/>
+                                <form t-att-action="keep('/shop/cart/update')" style="display:block;" class="js_add_cart_variants" method="POST">
+                                  <div>
+                                    <input name="product_id" t-att-value="product.id" type="hidden"/>
+                                    <input name="item_type" value="alone" type="hidden"/>
+                                    <a id="add_to_cart" class="btn btn-primary btn-product-detail-add-to-cart btn-lg mt8 fa fa-shopping-cart js_check_product a-submit" href="#"> Add to Cart</a>
+                                  </div>
+                                </form>
+                            </t> -->
+                        </t>
+                        <t t-if="len(product.attribute_line_ids) == 0  or attr_color_found == 1" >
+                            <span style="font-style: italic;" > EAN <span t-field="product.ean13"/> - Ref ( <span t-field="product.default_code"/> ) </span>
                             <br/><br/>
                             <form t-att-action="keep('/shop/cart/update')" style="display:block;" class="js_add_cart_variants" method="POST">
                               <!-- <div class="js_product"> -->
                               <div>
                                 <input name="product_id" t-att-value="product.id" type="hidden"/>
+                                <input name="item_type" value="alone" type="hidden"/>
                                 <a id="add_to_cart" class="btn btn-primary btn-product-detail-add-to-cart btn-lg mt8 fa fa-shopping-cart js_check_product a-submit" href="#"> Add to Cart</a>
                               </div>
                             </form>
@@ -333,5 +358,13 @@
                 </tree>
             </field>
         </record>
+
+        <template id="yotech_tools_menu_secondary" inherit_id='web.menu_secondary'>
+            <xpath expr="//div[@class='oe_footer']" position="replace">
+                <div class="oe_footer">
+                    Powered by <a href="http://www.yotech.pro" target="_blank"><span>Yotech</span></a>
+                </div>
+            </xpath>
+        </template>
     </data>
 </openerp>
