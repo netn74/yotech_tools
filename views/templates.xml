@@ -78,14 +78,18 @@
             <t t-set="attribute_value_ids" t-value="get_attribute_value_ids(product)"/>
             <t t-set="website_sale_order" t-value="website.sale_get_order()"/>
             <t t-set="attr_color_available" t-value="0"/>
+            <t t-set="attr_lang_available" t-value="0"/>
 
             <ul t-attf-class="list-unstyled js_add_cart_variants #{ul_class}" t-att-data-attribute_value_ids="attribute_value_ids">
                 <t t-set="attr_name" t-value="0"/> <!-- 0 = color -->
                 <t t-foreach="product.attribute_line_ids" t-as="variant_id">
                     <li t-if="len(variant_id.value_ids) > 1">
                         <t t-if="variant_id.attribute_id.type == 'color'">
-                            <t t-set="attr_color_available" t-value="1"/>
+                            <t t-if="variant_id.attribute_id.name == 'color' or variant_id.attribute_id.name == 'size'">
+                                <t t-set="attr_color_available" t-value="1"/>
+                            </t>
                         </t>
+
                          <t t-if="not lang_selected">
                              <t t-set="lang_selected" t-value="0"/>
                          </t>
@@ -93,36 +97,128 @@
                             <t t-set="attr_name" t-value="1"/>  <!-- 1 = size -->
                         </t>
                         <!-- select -->
-                        <t t-if="variant_id.attribute_id.type in ['select', 'hidden']">
-                            <strong t-field="variant_id.attribute_id.name"/>
-                            <br/>
-                            <!-- <span>lang_selected : <span t-esc="lang_selected"/></span> -->
-                            <br/>
-                            <select class="form-control js_variant_change" name="language_select">
-                                <t t-foreach="variant_id.value_ids" t-as="value_id">
-                                    <option t-att-value="value_id.id" t-att-selected="int(value_id.id) == int(lang_selected)" >
-                                        <span t-field="value_id.name"/>
-                                    </option>
-                                </t>
-                            </select>
+                        <!-- Langue alone -->
+                        <t t-if="attr_color_available == 0">
+                            <!-- select Langue alone -->
+                            <t t-if="variant_id.attribute_id.type == 'select'">
+                                <t t-set="attr_lang_available" t-value="1"/>
+                            </t>
+                        </t>
+                        <t t-if="attr_color_available">
+                            <t t-if="variant_id.attribute_id.type in ['select', 'hidden']">
+                                <strong t-field="variant_id.attribute_id.name"/>
+                                <br/>
+                                <!-- <span>lang_selected : <span t-esc="lang_selected"/></span> -->
+                                <br/>
+                                <select class="form-control js_variant_change" name="language_select">
+                                    <t t-foreach="variant_id.value_ids" t-as="value_id">
+                                        <option t-att-value="value_id.id" t-att-selected="int(value_id.id) == int(lang_selected)" >
+                                            <span t-field="value_id.name"/>
+                                        </option>
+                                    </t>
+                                </select>
 
-                            <!-- select Size Model -->
-                            <t t-if="variant_id.attribute_id.name == 'size' or variant_id.attribute_id.name == 'model'">
-                                <t t-set="attr_name" t-value="1"/>  <!-- 1 = size -->
-                                <span style="font-style: italic;" class="ean"> EAN <span t-field="product.ean13"/> -</span><span> Ref ( <span t-field="product.default_code"/> ) </span>
-                                <br/><br/>
-                                <form t-att-action="keep('/shop/cart/update')" style="display:block;" class="js_add_cart_variants" method="POST">
-                                  <div>
-                                    <input name="product_id" t-att-value="product.id" type="hidden"/>
-                                    <input name="item_type" value="variant2" type="hidden"/>
-                                    <a id="add_to_cart" class="btn btn-primary btn-product-detail-add-to-cart btn-lg mt8 fa fa-shopping-cart js_check_product a-submit" href="#"> Add to Cart</a>
-                                  </div>
-                                </form>
+                                <!-- select Size Model -->
+                                <t t-if="variant_id.attribute_id.name == 'size' or variant_id.attribute_id.name == 'model'">
+                                    <t t-set="attr_name" t-value="1"/>  <!-- 1 = size -->
+                                    <span style="font-style: italic;" class="ean"> EAN <span t-field="product.ean13"/> -</span><span> Ref ( <span t-field="product.default_code"/> ) </span>
+                                    <br/><br/>
+                                    <form t-att-action="keep('/shop/cart/update')" style="display:block;" class="js_add_cart_variants" method="POST">
+                                      <div>
+                                        <input name="product_id" t-att-value="product.id" type="hidden"/>
+                                        <input name="item_type" value="variant2" type="hidden"/>
+                                        <a id="add_to_cart" class="btn btn-primary btn-product-detail-add-to-cart btn-lg mt8 fa fa-shopping-cart js_check_product a-submit" href="#"> Add to Cart</a>
+                                      </div>
+                                    </form>
+                                </t>
                             </t>
                         </t>
                     </li>
                 </t>
-                <t t-if="attr_color_available">
+
+                <!-- No variant -->
+                <t t-if="attr_lang_available == 0 and attr_color_available == 0">
+                    <strong t-field="product.name"/>
+                    <span style="font-style: italic;" > EAN <span t-field="product.ean13"/> - Ref ( <span t-field="product.default_code"/> ) </span>
+                    <br/><br/>
+                    <form t-att-action="keep('/shop/cart/update')" style="display:block;" class="js_add_cart_variants" method="POST">
+                      <div>
+                        <input name="product_id" t-att-value="product.id" type="hidden"/>
+                        <input name="item_type" value="alone" type="hidden"/>
+                        <a id="add_to_cart" class="btn btn-primary btn-product-detail-add-to-cart btn-lg mt8 fa fa-shopping-cart js_check_product a-submit" href="#"> Add to Cart</a>
+                      </div>
+                    </form>
+                </t>
+
+
+                <!-- If attr lang alone without attr color -->
+                <t t-if="attr_lang_available">
+                    <t t-set="inc" t-value="1"/>
+                    <span style="font-style: italic;" >lang</span>
+                    <ul class="ul-product-detail-add-to-cart" t-foreach="product.product_variant_ids" t-as="product_id">
+                        <t t-foreach="product_id.attribute_value_ids" t-as="value_id">
+                            <t t-if="value_id.attribute_id.type == 'select'">
+                                <t t-set="lang_id" t-value="value_id.id"/>
+                                <t t-set="lang_name" t-value="value_id.name"/>
+                            </t>
+                        </t>
+                        <li class="li-product-detail" t-att-data-lang="lang_id" >
+                            <t t-if="(compute_currency(product_id.lst_price) - product_id.price) &gt; 0.1">
+                              <del class="text-danger" style="white-space: nowrap;"
+                                t-field="product_id.lst_price" t-field-options='{
+                                    "widget": "monetary",
+                                    "from_currency": "product.company_id.currency_id",
+                                    "display_currency": "user_id.partner_id.property_product_pricelist.currency_id"
+                                }'/>&amp;nbsp;
+                            </t>
+                            <span t-field="product_id.price" style="white-space: nowrap;" t-field-options='{
+                                 "widget": "monetary",
+                                 "display_currency": "user_id.partner_id.property_product_pricelist.currency_id"
+                             }'/>
+                            <t t-if ="product_id.product_cart_quantity">
+                                <span><i class="fa fa-shopping-cart"></i>
+                                    <span t-attf-class="my_cart_quantity label label-primary" t-esc="product_id.product_cart_quantity or ''"/>
+                                </span>
+                            </t>
+                        </li>
+                        <t t-foreach="product_id.attribute_value_ids" t-as="value_id">
+                            <t t-if="value_id.attribute_id.type == 'select'">
+                                <li>
+                                    <!-- debug info line number -->
+                                    <!-- <span style="font-style: italic;" ><t t-esc="inc" /> : EAN <span t-field="product_id.ean13"/> - Reference ( <span t-field="product_id.default_code"/> ) </span> -->
+                                    <span style="font-style: italic;" class="ean" >EAN <span t-field="product_id.ean13"/> - </span><span> Ref ( <span t-field="product_id.default_code"/> ) <span class="ean"> - <t t-esc="value_id.name"/> </span></span>
+                                    <t t-set="inc" t-value="inc+1"/>
+                                </li>
+
+                                <li>
+                                    <label class="yocolor" data-type="yocolormaker" t-att-data-params="value_id.jsdata" t-attf-style="background-color:#{value_id.color or value_id.name}">
+                                        <input type="radio" class="js_variant_change"
+                                            t-att-checked="'checked' if not inc else ''"
+                                            t-att-name="'attribute-%s-%s' % (product_id.id, value_id.id)"
+                                            t-att-value="value_id.id"
+                                            t-att-title="value_id.name"/>
+                                    </label>
+                                </li>
+                                <li>
+                                    <form t-att-action="keep('/shop/cart/update')" class="js_add_cart_variants" method="POST">
+                                      <div class="js_product">
+                                        <t t-placeholder="select">
+                                          <input name="product_id" t-att-value="product_id.id" type="hidden"/>
+                                          <input name="item_type" value="variant" type="hidden"/>
+                                          <input name="lang_selected" t-att-value="lang_id" type="hidden"/>
+                                          <input type="text" class="js_quantity input-product-detail-select-qty" data-min="1" name="add_qty" value="1"/>
+                                        </t>
+                                        <a id="add_to_cart" class="btn btn-primary btn-product-detail-add-to-cart btn-lg mt8 fa fa-shopping-cart js_check_product a-submit" href="#"></a>
+                                      </div>
+                                    </form>
+                                </li>
+                            </t>
+                        </t>
+                    </ul>
+
+                </t>
+
+                <t t-if="attr_color_available" >
                     <!-- Color and Size -->
                     <t t-set="inc" t-value="1"/>
                     <t t-if="attr_name == 0">
@@ -130,7 +226,7 @@
                     </t>
                     <t t-if="attr_name == 1">
                         <span style="font-style: italic;" >size</span>
-                    </t>                    
+                    </t>
                     <t t-set="lang_id" t-value="0"/>
                     <t t-set="lang_name" t-value="french"/>
                     <ul class="ul-product-detail-add-to-cart" t-foreach="product.product_variant_ids" t-as="product_id">
@@ -238,18 +334,19 @@
                                 </t>
                                 <t t-if="variant_id.attribute_id.name == 'size' or variant_id.attribute_id.name == 'model'">
                                     <t t-set="add_to_cart_on_variant_line" t-value="2"/> <!-- add_to_cart_on_variant_line = variant_with_color -->
-                                </t>                                
+                                </t>
                             </t>
                         </t>
-                        <t t-if="len(product.attribute_line_ids) == 0  or add_to_cart_on_variant_line == 1" >
+
+                        <!-- <t t-if="(len(product.attribute_line_ids) == 0  or add_to_cart_on_variant_line == 1) and attr_lang_available == 0" > -->
+                            <t t-if="disable_but_no_comment_cause_inherit_on_add_to_cart_object == True" >
                             <span style="font-style: italic;" > EAN <span t-field="product.ean13"/> - Ref ( <span t-field="product.default_code"/> ) </span>
                             <br/><br/>
                             <form t-att-action="keep('/shop/cart/update')" style="display:block;" class="js_add_cart_variants" method="POST">
-                              <!-- <div class="js_product"> -->
                               <div>
                                 <input name="product_id" t-att-value="product.id" type="hidden"/>
                                 <input name="item_type" value="alone" type="hidden"/>
-                                <a id="add_to_cart" class="btn btn-primary btn-product-detail-add-to-cart btn-lg mt8 fa fa-shopping-cart js_check_product a-submit" href="#"> Add to Cart</a>
+                                <a id="add_to_cart" class="btn btn-primary btn-product-detail-add-to-cart btn-lg mt8 fa fa-shopping-cart js_check_product a-submit" href="#">Add to Cart</a>
                               </div>
                             </form>
                         </t>
