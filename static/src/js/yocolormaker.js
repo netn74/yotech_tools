@@ -56,6 +56,14 @@ $(document).ready(function() {
       $(tag).css("background",backgroundvalue);
     }
 
+    function bgimg(tag, img) {
+      backgroundvalue  = "url("+img+")";
+      /*backgroundvalue  = "url(http://babache-erp-st.yotech.ch/website/image/product.template/4420_69929a6/image/26x26)";*/
+      $(tag).css("background-image", backgroundvalue);
+      $(tag).css("background-repeat", "no-repeat");
+      $(tag).css("background-size", "cover");
+    }
+
 
   $( "label[data-type='yocolormaker']" ).each(function( index ) {
     if ($(this).attr("data-params")) {
@@ -72,6 +80,7 @@ $(document).ready(function() {
       case "rect2": rect2(this, params ); break;
       case "rect3": rect3(this, params ); break;
       case "rect4": rect4(this, params ); break;
+      case "bgimg": bgimg(this, $(this).attr("data-bgimg") ); break;
     }
   });
 

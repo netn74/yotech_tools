@@ -22,6 +22,23 @@
 from openerp.osv import osv, fields, expression
 from openerp.tools.translate import _
 
+import cStringIO
+import contextlib
+import datetime
+import hashlib
+import inspect
+import logging
+import math
+import mimetypes
+import unicodedata
+import os
+import re
+import time
+import urlparse
+
+from PIL import Image
+from sys import maxint
+
 import openerp.addons.decimal_precision as dp
 from openerp.tools.float_utils import float_round, float_compare
 
@@ -232,10 +249,10 @@ class product_attribute_value(osv.Model):
         return res
 
 
-
     _columns = {
         'jsdata': fields.char("JS data", help="Here you can set a specific data to display icon on the website if the attibute type is 'Color' according to methode already implemented. exmple : ['rect2','red','blue'] \
-                                               ref : http://www.w3schools.com/html/html_colornames.asp"),
+                                             ref : http://www.w3schools.com/html/html_colornames.asp"),
+        'background_img': fields.char("Background Image", help="Background Image , limited to 26x26px"),
         'get_ean13': fields.function(_get_ean13, string="EAN13", type="char"),
         'get_defaultcode': fields.function(_get_defaultcode, string="Ref", type="char"),
         'get_prod_id': fields.function(_get_prod_id, string="Product_id", type="integer"),
