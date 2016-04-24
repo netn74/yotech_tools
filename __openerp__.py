@@ -5,7 +5,7 @@
 'description': "Yotech Generic tools",
 'author':'Nicolas Trubert',
 'category': 'Hidden',
-'depends': ['web','website_sale','stock'],
+'depends': ['web','website_sale','stock','delivery'],
 'css': ['static/src/css/yotech.css'],
 'data': [
         'security/ir.model.access.csv',

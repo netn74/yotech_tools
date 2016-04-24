@@ -3,6 +3,7 @@ message_type,message.type.catalog value,model_message_type,base.group_user,1,1,1
 message_type_portal,message.type.portal value,model_message_type,base.group_portal,1,0,0,0
 access_product_uom_stock_public,product.uom.public,product.model_product_uom,,1,0,0,0
 access_product_uom_stock_portal,product.uom.portal,product.model_product_uom,base.group_portal,1,0,0,0
+access_product_product_public,product.product.public,model_product_product,,1,0,0,0
 access_stock_warehouse_public,stock.warehouse.public,stock.model_stock_warehouse,,1,0,0,0
 access_stock_warehouse_portal,stock.warehouse.portal,stock.model_stock_warehouse,base.group_portal,1,0,0,0
 access_stock_move_public,stock.move.public,stock.model_stock_move,,1,0,0,0

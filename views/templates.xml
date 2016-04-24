@@ -384,6 +384,22 @@
             </xpath>
         </template>
 
+        <record id="view_yotech_tools_delivery_carrier_form" model="ir.ui.view">
+            <field name="name">delivery.carrier.form.yotech.tools</field>
+            <field name="model">delivery.carrier</field>
+            <field name="priority">4</field>
+            <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+            <field name="arch" type="xml">
+                <group string="Pricing Information" position="after">
+                    <group string=" Show Condition">
+                        <field name="show_under_cond"/>
+                        <field name="condition_type" attrs="{'invisible':[('show_under_cond','=',False)]}"/>
+                        <field name="partner_price_list_type" attrs="{'invisible':[('show_under_cond','=',False)]}"/>
+                    </group>
+                </group>
+            </field>
+        </record>
+
         <record id="view_yotech_tools_product_template_form" model="ir.ui.view">
             <field name="name">product.template.form.yotech.tools</field>
             <field name="model">product.template</field>
@@ -484,6 +500,78 @@
                 </tree>
             </field>
         </record>
+
+        <template id="yotech_tools_payment_delivery" name="Delivery Costs" inherit_id="website_sale_delivery.payment_delivery">
+            <xpath expr="//t[@t-if='delivery.available']" position="replace">
+                <t t-if="delivery.available">
+                    <t t-if="not delivery.show_under_cond">
+                        <label>
+                            <input t-att-value="delivery.id" type="radio" name="delivery_type"
+                                t-att-checked="order.carrier_id and order.carrier_id.id == delivery.id and 'checked' or False"/>
+                            <span t-field="delivery.name"/>
+                            <span class="badge" t-field="delivery.price"
+                                t-field-options='{
+                                    "widget": "monetary",
+                                    "from_currency": "delivery.product_id.company_id.currency_id",
+                                    "display_currency": "website_sale_order.currency_id"
+                                }'/>
+                            <div t-field="delivery.website_description" class="text-muted"/>
+                        </label>
+                    </t>
+                    <t t-if="delivery.show_under_cond">
+                        <t t-if="delivery.condition_type == 'Partner Price List'">
+                            <t t-if= "delivery.partner_price_list_type == website_sale_order.partner_id.property_product_pricelist">
+                                <label>
+                                    <input t-att-value="delivery.id" type="radio" name="delivery_type"
+                                        t-att-checked="order.carrier_id and order.carrier_id.id == delivery.id and 'checked' or False"/>
+                                    <span t-field="delivery.name"/>
+                                    <span class="badge" t-field="delivery.price"
+                                        t-field-options='{
+                                            "widget": "monetary",
+                                            "from_currency": "delivery.product_id.company_id.currency_id",
+                                            "display_currency": "website_sale_order.currency_id"
+                                        }'/>
+                                    <div t-field="delivery.website_description" class="text-muted"/>
+                                </label>
+                            </t>
+                        </t>
+                    </t>
+                </t>
+            </xpath>
+        </template>
+
+<!--
+TODO:
+-Adapt Out result to calculate delivery cost according to user choice!
+-Add css to copy disgn from paiment screen
+
+    <template id="yotech_tools_cart_delivery" name="Delivery Costs" inherit_id="website_sale.total">
+            <xpath expr="//table[@id='cart_total']" position="after">
+                <div t-if="deliveries" class="row" id="cart_delivery_carrier">
+                    <div class="col-lg-5 col-sm-6">
+                    <h4>Choose your Delivery Method</h4>
+                        <ul class="list-unstyled">
+                            <li t-foreach="deliveries" t-as="delivery">
+                                <t t-if="delivery.available">
+                                    <label>
+                                        <input t-att-value="delivery.id" type="radio" name="delivery_type"
+                                            t-att-checked="order.carrier_id and order.carrier_id.id == delivery.id and 'checked' or False"/>
+                                        <span t-field="delivery.name"/>
+                                        <span class="badge" t-field="delivery.price"
+                                            t-field-options='{
+                                                "widget": "monetary",
+                                                "from_currency": "delivery.product_id.company_id.currency_id",
+                                                "display_currency": "website_sale_order.currency_id"
+                                            }'/>
+                                        <div t-field="delivery.website_description" class="text-muted"/>
+                                    </label>
+                                </t>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </xpath>
+        </template> -->
 
         <template id="yotech_tools_menu_secondary" inherit_id='web.menu_secondary'>
             <xpath expr="//div[@class='oe_footer']" position="replace">
