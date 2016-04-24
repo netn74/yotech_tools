@@ -31,8 +31,9 @@ class delivery_carrier(osv.osv):
     _inherit = "delivery.carrier"
 
     _columns = {
-        'show_under_cond': fields.boolean('Show under condition', help="If the enable Delivery methode will be dispaly under condition"),
-        'condition_type': fields.selection([('None','none'),('Partner Price List','partner_price_list')], 'Condition Type', required=True),
+        'free_delivery_allow': fields.boolean('Free price allow', help="If the enable Free delivery price is allow"),
+        'show_under_cond': fields.boolean('Show under condition', help="If the enable Delivery methode will be display under condition"),
+        'condition_type': fields.selection([('Partner Price List','partner_price_list')], 'Condition Type'),
         'partner_price_list_type': fields.property(
             type='many2one',
             relation='product.pricelist',

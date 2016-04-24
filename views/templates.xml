@@ -391,8 +391,9 @@
             <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
             <field name="arch" type="xml">
                 <group string="Pricing Information" position="after">
-                    <group string=" Show Condition">
+                    <group string=" Show Conditions">
                         <field name="show_under_cond"/>
+                        <field name="free_delivery_allow"/>
                         <field name="condition_type" attrs="{'invisible':[('show_under_cond','=',False)]}"/>
                         <field name="partner_price_list_type" attrs="{'invisible':[('show_under_cond','=',False)]}"/>
                     </group>
@@ -509,12 +510,27 @@
                             <input t-att-value="delivery.id" type="radio" name="delivery_type"
                                 t-att-checked="order.carrier_id and order.carrier_id.id == delivery.id and 'checked' or False"/>
                             <span t-field="delivery.name"/>
-                            <span class="badge" t-field="delivery.price"
-                                t-field-options='{
-                                    "widget": "monetary",
-                                    "from_currency": "delivery.product_id.company_id.currency_id",
-                                    "display_currency": "website_sale_order.currency_id"
-                                }'/>
+                            <t t-if="delivery.price == 0" >
+                                <t t-if="delivery.free_delivery_allow" >
+                                    <span class="badge" t-field="delivery.price"
+                                        t-field-options='{
+                                            "widget": "monetary",
+                                            "from_currency": "delivery.product_id.company_id.currency_id",
+                                            "display_currency": "website_sale_order.currency_id"
+                                        }'/>
+                                </t>
+                                <t t-if="not delivery.free_delivery_allow" >
+                                    <span class="badge">Not defined yet!</span>
+                                </t>
+                            </t>
+                            <t t-if="delivery.price != 0">
+                                <span class="badge" t-field="delivery.price"
+                                    t-field-options='{
+                                        "widget": "monetary",
+                                        "from_currency": "delivery.product_id.company_id.currency_id",
+                                        "display_currency": "website_sale_order.currency_id"
+                                    }'/>
+                            </t>
                             <div t-field="delivery.website_description" class="text-muted"/>
                         </label>
                     </t>
@@ -525,12 +541,27 @@
                                     <input t-att-value="delivery.id" type="radio" name="delivery_type"
                                         t-att-checked="order.carrier_id and order.carrier_id.id == delivery.id and 'checked' or False"/>
                                     <span t-field="delivery.name"/>
-                                    <span class="badge" t-field="delivery.price"
-                                        t-field-options='{
-                                            "widget": "monetary",
-                                            "from_currency": "delivery.product_id.company_id.currency_id",
-                                            "display_currency": "website_sale_order.currency_id"
-                                        }'/>
+                                    <t t-if="delivery.price == 0">
+                                        <t t-if="delivery.free_delivery_allow" >
+                                            <span class="badge" t-field="delivery.price"
+                                                t-field-options='{
+                                                    "widget": "monetary",
+                                                    "from_currency": "delivery.product_id.company_id.currency_id",
+                                                    "display_currency": "website_sale_order.currency_id"
+                                                }'/>
+                                        </t>
+                                        <t t-if="not delivery.free_delivery_allow" >
+                                            <span class="badge">Not defined yet!</span>
+                                        </t>
+                                    </t>
+                                    <t t-if="delivery.price != 0">
+                                        <span class="badge" t-field="delivery.price"
+                                            t-field-options='{
+                                                "widget": "monetary",
+                                                "from_currency": "delivery.product_id.company_id.currency_id",
+                                                "display_currency": "website_sale_order.currency_id"
+                                            }'/>
+                                    </t>
                                     <div t-field="delivery.website_description" class="text-muted"/>
                                 </label>
                             </t>
