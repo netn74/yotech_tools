@@ -28,9 +28,11 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class delivery_carrier(osv.osv):
+    _order = "sequence asc"
     _inherit = "delivery.carrier"
 
     _columns = {
+        'sequence': fields.integer('Sequence Number', help="Gives the sequence order when displaying a list of order lines."),
         'free_delivery_allow': fields.boolean('Free price allow', help="If the enable Free delivery price is allow"),
         'show_under_cond': fields.boolean('Show under condition', help="If the enable Delivery methode will be display under condition"),
         'condition_type': fields.selection([('Partner Price List','partner_price_list')], 'Condition Type'),
@@ -40,4 +42,8 @@ class delivery_carrier(osv.osv):
             domain=[('type','=','sale')],
             string="Sale Pricelist",
             help="This pricelist will be used, instead of the default one, for sales to the current partner"),
+    }
+
+    _defaults = {
+        'sequence': 0,
     }
