@@ -5,7 +5,7 @@
         <template id="add_css_js" name="yotech_tools_yocolormaker" inherit_id="website.layout">
             <xpath expr="//html/head" position="inside">
                 <link href="/yotech_tools/static/src/css/yocolormaker.css" rel="stylesheet"/>
-                <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+                <script type="text/javascript" src="/yotech_tools/static/src/js/jquery-1.11.3.min.js"></script>
                 <script type="text/javascript" src="/yotech_tools/static/src/js/yocolormaker.js"></script>
             </xpath>
             <xpath expr="//html/body" position="inside">
@@ -336,10 +336,12 @@
                 <div class="product-info">
                     <div class="col-xs-12 col-md-5 col-lg-8 col-sm-6 product-detail">
                         <h1 itemprop="name" t-field="product.name">Product Name</h1>
-                        <span> Weight : <span t-field="product.weight"/></span><br/>
-                        <span> Weight Net : <span t-field="product.weight_net"/></span><br/>
+                        <span> Weight : <span t-field="product.weight"/></span> kg<br/>
+                        <t t-if="product.weight != product.weight_net ">
+                            <span> Weight Net : <span t-field="product.weight_net"/></span> kg<br/>
+                        </t>
                         <t t-if="product.diameter > 0 ">
-                            <span> Diameter : <span t-field="product.diameter"/></span><br/>
+                            <span> Diameter : <span t-field="product.diameter"/> cm</span><br/>
                         </t>
                         <span itemprop="url" style="display:none;" t-esc="'/shop/product/%s' % slug(product)"/>
                         <span t-if="product.description_sale and len(product.description_sale) &gt; 200">
