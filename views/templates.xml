@@ -211,7 +211,7 @@
                                 <li>
                                     <!-- debug info line number -->
                                     <!-- <span style="font-style: italic;" ><t t-esc="inc" /> : EAN <span t-field="product_id.ean13"/> - Reference ( <span t-field="product_id.default_code"/> ) </span> -->
-                                    <span style="font-style: italic;" class="ean" >EAN <span t-field="product_id.ean13"/> - </span><span> Ref ( <span t-field="product_id.default_code"/> ) <span class="ean"> - <t t-esc="value_id.name"/> </span></span>
+                                    <span style="font-style: italic;" class="ean" >EAN <span t-field="product_id.ean13"/> - </span><span> Ref ( <span t-field="product_id.default_code"/> ) <span class="value_type"> - <t t-esc="value_id.name"/> </span></span>
                                     <t t-set="inc" t-value="inc+1"/>
                                 </li>
 
@@ -293,7 +293,7 @@
                                 <li>
                                     <!-- debug info line number -->
                                     <!-- <span style="font-style: italic;" ><t t-esc="inc" /> : EAN <span t-field="product_id.ean13"/> - Reference ( <span t-field="product_id.default_code"/> ) </span> -->
-                                    <span style="font-style: italic;" class="ean" >EAN <span t-field="product_id.ean13"/> - </span><span> Ref ( <span t-field="product_id.default_code"/> ) <span class="ean"> - <t t-esc="value_id.name"/> </span></span>
+                                    <span style="font-style: italic;" class="ean" >EAN <span t-field="product_id.ean13"/> - </span><span> Ref ( <span t-field="product_id.default_code"/> ) <span class="value_type"> - <t t-esc="value_id.name"/> </span></span>
                                     <t t-set="inc" t-value="inc+1"/>
                                 </li>
 
@@ -336,19 +336,22 @@
                 <div class="product-info">
                     <div class="col-xs-12 col-md-5 col-lg-8 col-sm-6 product-detail">
                         <h1 itemprop="name" t-field="product.name">Product Name</h1>
-                        <span> Weight : <span t-field="product.weight"/></span> kg<br/>
+                        <span> Weight : <span t-field="product.weight"/> kg </span>
                         <t t-if="product.weight != product.weight_net ">
-                            <span> Weight Net : <span t-field="product.weight_net"/></span> kg<br/>
+                            | <span> Weight Net : <span t-field="product.weight_net"/> kg </span>
                         </t>
                         <t t-if="product.diameter > 0 ">
-                            <span> Diameter : <span t-field="product.diameter"/> cm</span><br/>
+                            | <span> Diameter : <span t-field="product.diameter"/> cm </span>
+                        </t>
+                        <t t-if="product.info_size > 0 ">
+                            | <span> Size : <span t-field="product.info_size"/> cm </span><br/>
                         </t>
                         <span itemprop="url" style="display:none;" t-esc="'/shop/product/%s' % slug(product)"/>
-                        <span t-if="product.description_sale and len(product.description_sale) &gt; 200">
-                             <t t-set="description" t-value="product.description_sale[:200] and product.description_sale[:200].replace('+', '\n')+'...'"/>
+                        <span t-if="product.description_sale and len(product.description_sale) &gt; 500">
+                             <t t-set="description" t-value="product.description_sale[:500] and product.description_sale[:500].replace('+', '\n')+'...'"/>
                             <p class="text-muted "><t t-esc="description"/></p>
                         </span>
-                        <span t-if="product.description_sale and len(product.description_sale) &lt; 200">
+                        <span t-if="product.description_sale and len(product.description_sale) &lt; 500">
                             <p t-if="product.description_sale and len(product.description_sale)&gt; 0" t-field="product.description_sale" class="text-muted "/>
                         </span>
                         <br/>
