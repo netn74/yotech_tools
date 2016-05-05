@@ -272,7 +272,7 @@
                               <del class="text-danger" style="white-space: nowrap;"
                                 t-field="product_id.lst_price" t-field-options='{
                                     "widget": "monetary",
-                   yotech_tools/views/templates.xml:24:                 "from_currency": "product.company_id.currency_id",
+                                    "from_currency": "product.company_id.currency_id",
                                     "display_currency": "user_id.partner_id.property_product_pricelist.currency_id"
                                 }'/>&amp;nbsp;
                             </t>
@@ -298,7 +298,8 @@
                                 </li>
 
                                 <li>
-                                    <label class="yocolor" data-type="yocolormaker" t-att-data-params="value_id.jsdata" t-attf-style="background-color:#{value_id.color or value_id.name}">
+                                    <label class="yocolor" data-type="yocolormaker" t-att-data-params="value_id.jsdata" t-att-data-bgimg="value_id.background_img" t-attf-style="background-color:#{value_id.color or value_id.name}">
+                                    <!-- <label class="yocolor" data-type="yocolormaker" t-att-data-params="value_id.jsdata" t-attf-style="background-color:#{value_id.color or value_id.name}"> -->
                                         <input type="radio" class="js_variant_change"
                                             t-att-checked="'checked' if not inc else ''"
                                             t-att-name="'attribute-%s-%s' % (product_id.id, value_id.id)"
