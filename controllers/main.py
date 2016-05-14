@@ -59,70 +59,54 @@ class QueryURL(object):
 class website_sale(openerp.addons.website_sale.controllers.main.website_sale):
 
 
-    # @http.route(['/shop/confirm_order'], type='http', auth="public", website=True)
-    # def confirm_order(self, **post):
-    #     cr, uid, context, registry = request.cr, request.uid, request.context, request.registry
-    #     email_act = None
-    #
-    #     order = request.website.sale_get_order(context=context)
-    #     if not order:
-    #         return request.redirect("/shop")
-    #
-    #     sale_order_obj = request.registry['sale.order']
-    #
-    #     email_act = sale_order_obj.action_quotation_send(cr, SUPERUSER_ID, [order.id], context=request.context)
-    #
-    #     # send the email
-    #     if email_act and email_act.get('context'):
-    #         composer_values = {}
-    #         email_ctx = email_act['context']
-    #         email_ctx['mail_approb'] = False
-    #         #_logger.info('email_ctx =)' + str(email_ctx))
-    #         public_id = request.website.user_id.id
-    #         if uid == public_id:
-    #             composer_values['email_from'] = request.website.user_id.company_id.email
-    #         #_logger.info('composer_values =)' + str(composer_values))
-    #         composer_id = request.registry['mail.compose.message'].create(cr, SUPERUSER_ID, composer_values, context=email_ctx)
-    #         #_logger.info('composer_id =)' + str(composer_id))
-    #         request.registry['mail.compose.message'].send_mail(cr, SUPERUSER_ID, [composer_id], context=email_ctx)
-    #
-    #     email_act2 = None
-    #     email_act2 = sale_order_obj.action_quotation_send_for_approb(cr, SUPERUSER_ID, [order.id], context=request.context)
-    #
-    #     if email_act2 and email_act2.get('context'):
-    #         composer_values2 = {}
-    #         email_ctx2 = email_act2['context']
-    #         email_ctx2['mail_approb'] = True
-    #         email_ctx2['order_id'] = order.id
-    #         #_logger.info('email_ctx2 =)' + str(email_ctx2))
-    #         public_id = request.website.user_id.id
-    #         if uid == public_id:
-    #             composer_values2['email_from'] = request.website.user_id.company_id.email
-    #         #_logger.info('composer_values2 =)' + str(composer_values2))
-    #
-    #         composer_id = request.registry['mail.compose.message'].create(cr, SUPERUSER_ID, composer_values2, context=email_ctx2)
-    #         #_logger.info('composer_id =)' + str(composer_id))
-    #
-    #         request.registry['email.template'].send_mail(cr, SUPERUSER_ID, email_ctx2['default_template_id'], order.id, force_send=True, raise_exception=True, context=email_ctx2)
-    #
-    #
-    #     redirection = self.checkout_redirection(order)
-    #     if redirection:
-    #         return redirection
-    #
-    #     values = self.checkout_values(post)
-    #
-    #     values["error"] = self.checkout_form_validate(values["checkout"])
-    #     if values["error"]:
-    #         return request.website.render("website_sale.checkout", values)
-    #
-    #     self.checkout_form_save(values["checkout"])
-    #
-    #     request.session['sale_last_order_id'] = order.id
-    #
-    #     request.website.sale_get_order(update_pricelist=True, context=context)
-    #
-    #     return request.redirect("/shop/payment")
+    @http.route(['/shop/confirm_order'], type='http', auth="public", website=True)
+    def confirm_order(self, **post):
+        cr, uid, context, registry = request.cr, request.uid, request.context, request.registry
+        email_act = None
+
+        order = request.website.sale_get_order(context=context)
+        if not order:
+            return request.redirect("/shop")
+
+        sale_order_obj = request.registry['sale.order']
+
+        email_act2 = None
+        email_act2 = sale_order_obj.action_quotation_send_for_approb(cr, SUPERUSER_ID, [order.id], context=request.context)
+
+        if email_act2 and email_act2.get('context'):
+            composer_values2 = {}
+            email_ctx2 = email_act2['context']
+            email_ctx2['mail_approb'] = True
+            email_ctx2['order_id'] = order.id
+            #_logger.info('email_ctx2 =)' + str(email_ctx2))
+            public_id = request.website.user_id.id
+            if uid == public_id:
+                composer_values2['email_from'] = request.website.user_id.company_id.email
+            #_logger.info('composer_values2 =)' + str(composer_values2))
+
+            composer_id = request.registry['mail.compose.message'].create(cr, SUPERUSER_ID, composer_values2, context=email_ctx2)
+            #_logger.info('composer_id =)' + str(composer_id))
+
+            request.registry['email.template'].send_mail(cr, SUPERUSER_ID, email_ctx2['default_template_id'], order.id, force_send=True, raise_exception=True, context=email_ctx2)
+
+
+        redirection = self.checkout_redirection(order)
+        if redirection:
+            return redirection
+
+        values = self.checkout_values(post)
+
+        values["error"] = self.checkout_form_validate(values["checkout"])
+        if values["error"]:
+            return request.website.render("website_sale.checkout", values)
+
+        self.checkout_form_save(values["checkout"])
+
+        request.session['sale_last_order_id'] = order.id
+
+        request.website.sale_get_order(update_pricelist=True, context=context)
+
+        return request.redirect("/shop/payment")
 
 
     @http.route(['/shop/get_unit_price'], type='json', auth="public", methods=['POST'], website=True)
