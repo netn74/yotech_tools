@@ -58,6 +58,123 @@ class QueryURL(object):
 # inherit website_sale Controller
 class website_sale(openerp.addons.website_sale.controllers.main.website_sale):
 
+    def check_partner(self, data=None):
+        cr, uid, context, registry = request.cr, request.uid, request.context, request.registry
+        """"Check if partner exists and for new partner put Fiscal position according to shipping cournty id"""
+        orm_partner = registry.get('res.partner')
+        orm_user = registry.get('res.users')
+        orm_country = registry.get('res.country')
+        state_orm = registry.get('res.country.state')
+        orm_ir_property = registry.get('ir.property')
+
+        country_ids = orm_country.search(cr, SUPERUSER_ID, [], context=context)
+        countries = orm_country.browse(cr, SUPERUSER_ID, country_ids, context)
+        states_ids = state_orm.search(cr, SUPERUSER_ID, [], context=context)
+        states = state_orm.browse(cr, SUPERUSER_ID, states_ids, context)
+        partner = orm_user.browse(cr, SUPERUSER_ID, request.uid, context).partner_id
+
+        order = None
+
+        shipping_id = None
+        shipping_ids = []
+        checkout = {}
+        user_already_exists = False
+
+        if not data:
+            if request.uid != request.website.user_id.id:
+                shipping_ids = orm_partner.search(cr, SUPERUSER_ID, [("parent_id", "=", partner.id), ('type', "=", 'delivery')], context=context)
+            else:
+                order = request.website.sale_get_order(force_create=1, context=context)
+                if order.partner_id:
+                    domain = [("partner_id", "=", order.partner_id.id)]
+                    user_ids = request.registry['res.users'].search(cr, SUPERUSER_ID, domain, context=dict(context or {}, active_test=False))
+                    if user_ids :
+                        user_already_exists = True
+        else:
+            checkout = self.checkout_parse('billing', data)
+            try:
+                shipping_id = int(data["shipping_id"])
+            except ValueError:
+                pass
+
+        if shipping_id is None:
+            if not order:
+                order = request.website.sale_get_order(context=context)
+            if order and order.partner_shipping_id:
+                shipping_id = order.partner_shipping_id.id
+
+        shipping_ids = list(set(shipping_ids) - set([partner.id]))
+
+        if shipping_id == partner.id:
+            shipping_id = 0
+        elif shipping_id > 0 and shipping_id not in shipping_ids:
+            shipping_ids.append(shipping_id)
+        elif shipping_id is None and shipping_ids:
+            shipping_id = shipping_ids[0]
+
+        ctx = dict(context, show_address=1)
+        shippings = []
+        if shipping_ids:
+            shippings = shipping_ids and orm_partner.browse(cr, SUPERUSER_ID, list(shipping_ids), ctx) or []
+        if shipping_id > 0:
+            shipping = orm_partner.browse(cr, SUPERUSER_ID, shipping_id, ctx)
+
+        checkout['shipping_id'] = shipping_id
+
+        # Default search by user country
+
+        if not checkout.get('country_id'):
+            country_code = request.session['geoip'].get('country_code')
+            if country_code:
+                country_ids = request.registry.get('res.country').search(cr, uid, [('code', '=', country_code)], context=context)
+                if country_ids:
+                    checkout['country_id'] = country_ids[0]
+
+        _logger.info("Partner =) " + str(partner.name))
+        _logger.info("partner.property_payment_term.id =) " + str(partner.property_payment_term.id))
+        #partner_info = orm_partner.read(cr, uid, partner.id, [], context=context, load='_classic_read')
+        #_logger.info("partner_info =) " + str(partner_info ))
+        #_logger.info("account_config_setting =) " + str(account_config_setting))
+
+
+
+        if order:
+            _logger.info("Order =) " + str(order.name))
+        country_id = checkout.get('country_id')
+        _logger.info("Country Code from checkout =) " + str(country_id))
+        _logger.info("user_already_exists =) " + str(user_already_exists))
+        _logger.info("request.uid  =) " + str(request.uid))
+        _logger.info("request.website.user_id.id  =) " + str(request.website.user_id.id))
+        _logger.info("partner.id  =) " + str(partner.id))
+
+        if partner.property_payment_term.id == False:
+            if country_id == 6:
+                _logger.info("Switzerland")
+                payment_term_info = {
+                    'property_payment_term' : orm_ir_property.search(cr, uid, [('value_reference','=','default_local_property_payment_term')], context=context),
+                    'property_account_position' : orm_ir_property.search(cr, uid, [('value_reference','=','default_local_property_property_payment_term')], context=context),
+                    'proprety_account_receivable' : orm_ir_property.search(cr, uid, [('value_reference','=','default_local_property_property_payment_term')], context=context),
+                    'proprety_account_payable' : orm_ir_property.search(cr, uid, [('value_reference','=','default_local_property_account_payable')], context=context),
+                }
+            else:
+                _logger.info("World Wild")
+                payment_term_info = {
+                    'property_payment_term' : orm_ir_property.search(cr, uid, [('value_reference','=','default_property_property_payment_term')], context=context),
+                    'property_account_position' : orm_ir_property.search(cr, uid, [('value_reference','=','default_property_property_payment_term')], context=context),
+                    'proprety_account_receivable' : orm_ir_property.search(cr, uid, [('value_reference','=','default_property_property_payment_term')], context=context),
+                    'proprety_account_payable' : orm_ir_property.search(cr, uid, [('value_reference','=','default_property_account_payable')], context=context),
+                }
+            _logger.info("payment_term_info" + str(payment_term_info))
+            # save partner informations
+            if partner.id and request.website.partner_id.id != partner.id:
+                #orm_partner.write(cr, SUPERUSER_ID, [partner_id], payment_term_info, context=context)
+                _logger.info("Partner already set")
+            else:
+                # create partner
+                partner_id = orm_partner.create(cr, SUPERUSER_ID, payment_term_info, context=context)
+
+
+        return
 
     @http.route(['/shop/confirm_order'], type='http', auth="public", website=True)
     def confirm_order(self, **post):
@@ -67,28 +184,7 @@ class website_sale(openerp.addons.website_sale.controllers.main.website_sale):
         order = request.website.sale_get_order(context=context)
         if not order:
             return request.redirect("/shop")
-
         sale_order_obj = request.registry['sale.order']
-
-        email_act2 = None
-        email_act2 = sale_order_obj.action_quotation_send_for_approb(cr, SUPERUSER_ID, [order.id], context=request.context)
-
-        if email_act2 and email_act2.get('context'):
-            composer_values2 = {}
-            email_ctx2 = email_act2['context']
-            email_ctx2['mail_approb'] = True
-            email_ctx2['order_id'] = order.id
-            #_logger.info('email_ctx2 =)' + str(email_ctx2))
-            public_id = request.website.user_id.id
-            if uid == public_id:
-                composer_values2['email_from'] = request.website.user_id.company_id.email
-            #_logger.info('composer_values2 =)' + str(composer_values2))
-
-            composer_id = request.registry['mail.compose.message'].create(cr, SUPERUSER_ID, composer_values2, context=email_ctx2)
-            #_logger.info('composer_id =)' + str(composer_id))
-
-            request.registry['email.template'].send_mail(cr, SUPERUSER_ID, email_ctx2['default_template_id'], order.id, force_send=True, raise_exception=True, context=email_ctx2)
-
 
         redirection = self.checkout_redirection(order)
         if redirection:
@@ -100,6 +196,8 @@ class website_sale(openerp.addons.website_sale.controllers.main.website_sale):
         if values["error"]:
             return request.website.render("website_sale.checkout", values)
 
+        self.check_partner(post)
+
         self.checkout_form_save(values["checkout"])
 
         request.session['sale_last_order_id'] = order.id
@@ -108,7 +206,50 @@ class website_sale(openerp.addons.website_sale.controllers.main.website_sale):
 
         return request.redirect("/shop/payment")
 
+    #------------------------------------------------------
+    # Payment Validate manage new Order mail
+    #------------------------------------------------------
 
+    @http.route(['/shop/confirmation'], type='http', auth="public", website=True)
+    def payment_confirmation(self, **post):
+        """ End of checkout process controller. Confirmation is basically seing
+        the status of a sale.order. State at this point :
+
+         - should not have any context / session info: clean them
+         - take a sale.order id, because we request a sale.order and are not
+           session dependant anymore
+        """
+        cr, uid, context = request.cr, request.uid, request.context
+
+        sale_order_id = request.session.get('sale_last_order_id')
+        if sale_order_id:
+            order = request.registry['sale.order'].browse(cr, SUPERUSER_ID, sale_order_id, context=context)
+
+            sale_order_obj = request.registry['sale.order']
+            email_act2 = None
+            email_act2 = sale_order_obj.action_quotation_send_for_approb(cr, SUPERUSER_ID, [order.id], context=request.context)
+
+            if email_act2 and email_act2.get('context'):
+                composer_values2 = {}
+                email_ctx2 = email_act2['context']
+                email_ctx2['mail_approb'] = True
+                email_ctx2['order_id'] = order.id
+                #_logger.info('email_ctx2 =)' + str(email_ctx2))
+                public_id = request.website.user_id.id
+                if uid == public_id:
+                    composer_values2['email_from'] = request.website.user_id.company_id.email
+                #_logger.info('composer_values2 =)' + str(composer_values2))
+
+                composer_id = request.registry['mail.compose.message'].create(cr, SUPERUSER_ID, composer_values2, context=email_ctx2)
+                #_logger.info('composer_id =)' + str(composer_id))
+
+                request.registry['email.template'].send_mail(cr, SUPERUSER_ID, email_ctx2['default_template_id'], order.id, force_send=True, raise_exception=True, context=email_ctx2)
+
+
+        else:
+            return request.redirect('/shop')
+
+        return request.website.render("website_sale.confirmation", {'order': order})
     @http.route(['/shop/get_unit_price'], type='json', auth="public", methods=['POST'], website=True)
     def get_unit_price(self, product_ids, add_qty, use_order_pricelist=False, **kw):
         _logger.info(" get_unit_price  { ... ")

@@ -27,7 +27,6 @@ from openerp.tools.float_utils import float_round, float_compare
 import logging
 _logger = logging.getLogger(__name__)
 
-
 class message_type(osv.osv):
     _order = "name"
     _name = "message.type"

@@ -10,6 +10,7 @@
 'data': [
         'security/ir.model.access.csv',
         'data/data.xml',
+        'views/res_config_view.xml',
         'views/templates.xml'
 ],
 'active':True,

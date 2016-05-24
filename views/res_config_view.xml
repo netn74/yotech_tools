@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="yotech_tools_view_account_config_settings" model="ir.ui.view">
+            <field name="name">yotech tools account settings</field>
+            <field name="model">account.config.settings</field>
+            <field name="inherit_id" ref="account.view_account_config_settings"/>
+            <field name="arch" type="xml">
+                <!-- <group name="analytic_account_purchase" position="after"> -->
+                <form position="inside">
+                    <group string="Yotech tools additional Settings"/>
+                       <separator string="Local country" />
+                        <div name="account_config">
+                            <div>
+                                <label for="default_local_property_account_receivable"/>
+                                <field name="default_local_property_account_receivable" class="oe_inline"/>
+                            </div>
+                            <div>
+                                <label for="default_local_property_account_payable"/>
+                                <field name="default_local_property_account_payable" class="oe_inline"/>
+                            </div>
+                            <div>
+                                <label for="default_local_property_account_position"/>
+                                <field name="default_local_property_account_position" class="oe_inline"/>
+                            </div>
+                            <div>
+                                <label for="default_local_property_payment_term"/>
+                                <field name="default_local_property_payment_term" class="oe_inline"/>
+                            </div>
+                        </div>
+                       <separator string="Other countries" />
+                        <div name="account_config">
+                            <div>
+                                <label for="default_property_account_receivable"/>
+                                <field name="default_property_account_receivable" class="oe_inline"/>
+                            </div>
+                            <div>
+                                <label for="default_property_account_payable"/>
+                                <field name="default_property_account_payable" class="oe_inline"/>
+                            </div>
+                            <div>
+                                <label for="default_property_account_position"/>
+                                <field name="default_property_account_position" class="oe_inline"/>
+                            </div>
+                            <div>
+                                <label for="default_property_payment_term"/>
+                                <field name="default_property_payment_term" class="oe_inline"/>
+                            </div>
+                        </div>
+                    </form>
+<!--                </group> -->
+            </field>
+        </record>
+    </data>
+</openerp>

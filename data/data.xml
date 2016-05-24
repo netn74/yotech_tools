@@ -28,7 +28,6 @@
        &nbsp;&nbsp;Order number: <strong>${object.name}</strong><br />
        &nbsp;&nbsp;Order total: <strong>${object.amount_total} ${object.pricelist_id.currency_id.name}</strong><br />
        &nbsp;&nbsp;Order date: ${object.date_order}<br />
-       &nbsp;&nbsp;PTAEO: ${object.ptaeo}<br />
        % if object.origin:
        &nbsp;&nbsp;Order reference: ${object.origin}<br />
        % endif

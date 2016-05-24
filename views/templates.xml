@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-
         <template id="add_css_js" name="yotech_tools_yocolormaker" inherit_id="website.layout">
             <xpath expr="//html/head" position="inside">
                 <link href="/yotech_tools/static/src/css/yocolormaker.css" rel="stylesheet"/>
@@ -12,6 +11,42 @@
                 <!-- -->
             </xpath>
         </template>
+
+        <record id="t9" model="workflow.transition">
+            <field name="act_from" ref="account.act_draft"/>
+            <field name="act_to" ref="act_hide"/>
+            <field name="signal">invoice_hide</field>
+        </record>
+
+        <record id="act_hide" model="workflow.activity">
+            <field name="wkf_id" ref="account.wkf"/>
+            <field name="name">hide</field>
+            <field name="flow_stop">True</field>
+            <field name="action">action_hide()</field>
+            <field name="kind">function</field>
+        </record>
+
+        <record id="yotech_tools_invoice_supplier_form" model="ir.ui.view">
+            <field name="name">yotech_tools.account.invoice.supplier.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="arch" type="xml">
+                <button name="invoice_cancel" position="after">
+                    <button name="invoice_hide" states="draft,proforma2" string="Hide Invoice" groups="account.group_account_invoice"/>
+                </button>
+            </field>
+        </record>
+
+        <record id="yotech_tools_invoice_form" model="ir.ui.view">
+            <field name="name">yotech_tools.account.invoice.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <button name="invoice_cancel" position="after">
+                    <button name="invoice_hide" states="draft,proforma2" string="Hide Invoice" groups="account.group_account_invoice"/>
+                </button>
+            </field>
+        </record>
 
         <!-- Product attribute -->
 
