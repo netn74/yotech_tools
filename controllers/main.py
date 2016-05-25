@@ -196,7 +196,7 @@ class website_sale(openerp.addons.website_sale.controllers.main.website_sale):
         if values["error"]:
             return request.website.render("website_sale.checkout", values)
 
-        self.check_partner(post)
+        #self.check_partner(post)
 
         self.checkout_form_save(values["checkout"])
 
