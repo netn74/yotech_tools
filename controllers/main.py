@@ -400,3 +400,20 @@ class Website(openerp.addons.web.controllers.main.Home):
         else:
            return request.redirect("/shop/cart")
 
+#class MassMailController(openerp.addons.mass_mailing.controllers.main.MassMailController):
+class MassMailController(http.Controller):
+
+    @http.route(['/mail/mailing/<int:mailing_id>/subscribe'], type='http', auth='none')
+    def subscribe_post(self, mailing_id, email=None, res_id=None, **post):
+        cr, uid, context = request.cr, request.uid, request.context
+        Contacts = request.registry['mail.mass_mailing.contact']
+
+        contact_ids = Contacts.search_read(cr, SUPERUSER_ID, [('list_id', '=', int(mailing_id)), ('email', '=', email)], ['opt_out'], context=context)
+        if not contact_ids:
+            Contacts.add_to_list(cr, SUPERUSER_ID, email, int(mailing_id), context=context)
+        else:
+            if contact_ids[0]['opt_out']:
+                Contacts.write(cr, SUPERUSER_ID, [contact_ids[0]['id']], {'opt_out': False}, context=context)
+        # add email to session
+        request.session['mass_mailing_email'] = email
+        return 'OK'
