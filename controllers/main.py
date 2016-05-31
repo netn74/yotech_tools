@@ -403,7 +403,7 @@ class Website(openerp.addons.web.controllers.main.Home):
 #class MassMailController(openerp.addons.mass_mailing.controllers.main.MassMailController):
 class MassMailController(http.Controller):
 
-    @http.route(['/mail/mailing/<int:mailing_id>/subscribe'], type='http', auth='none')
+    @http.route(['/mail/mailing/<int:mailing_id>/subscribe'], type='http', auth='none', website=True )
     def subscribe_post(self, mailing_id, email=None, res_id=None, **post):
         cr, uid, context = request.cr, request.uid, request.context
         Contacts = request.registry['mail.mass_mailing.contact']
@@ -416,4 +416,4 @@ class MassMailController(http.Controller):
                 Contacts.write(cr, SUPERUSER_ID, [contact_ids[0]['id']], {'opt_out': False}, context=context)
         # add email to session
         request.session['mass_mailing_email'] = email
-        return 'OK'
+        return http.request.redirect("/page/thanks-subscribe")
