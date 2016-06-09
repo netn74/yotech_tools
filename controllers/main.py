@@ -199,7 +199,7 @@ class website_sale(openerp.addons.website_sale.controllers.main.website_sale):
         if values["error"]:
             return request.website.render("website_sale.checkout", values)
 
-        self.check_partner(post)
+        #self.check_partner(post)
 
         self.checkout_form_save(values["checkout"])
 
@@ -507,3 +507,22 @@ class contactus(openerp.addons.website_crm.controllers.main.contactus):
         email_template.send_mail(request.cr, SUPERUSER_ID, template_id, lead_id, force_send=True, raise_exception=True, context=email_ctx)
 
         return self.get_contactus_response(values, kwargs)
+
+#class MassMailController(openerp.addons.mass_mailing.controllers.main.MassMailController):
+class MassMailController(http.Controller):
+
+    @http.route(['/mail/mailing/<int:mailing_id>/subscribe'], type='http', auth='none', website=True )
+    def subscribe_post(self, mailing_id, email=None, res_id=None, **post):
+        cr, uid, context = request.cr, request.uid, request.context
+        Contacts = request.registry['mail.mass_mailing.contact']
+
+        contact_ids = Contacts.search_read(cr, SUPERUSER_ID, [('list_id', '=', int(mailing_id)), ('email', '=', email)], ['opt_out'], context=context)
+        if not contact_ids:
+            Contacts.add_to_list(cr, SUPERUSER_ID, email, int(mailing_id), context=context)
+        else:
+            if contact_ids[0]['opt_out']:
+                Contacts.write(cr, SUPERUSER_ID, [contact_ids[0]['id']], {'opt_out': False}, context=context)
+        # add email to session
+        request.session['mass_mailing_email'] = email
+        return http.request.redirect("/page/thanks-subscribe")
+
