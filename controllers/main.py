@@ -29,6 +29,9 @@ from PIL import Image
 
 import openerp
 from openerp.addons.web.controllers.main import WebClient
+
+import openerp.addons.website_crm.controllers.main
+
 from openerp.addons.web import http
 from openerp.http import request, STATIC_CACHE
 from openerp.tools import image_save_for_web
@@ -245,7 +248,6 @@ class website_sale(openerp.addons.website_sale.controllers.main.website_sale):
 
                 request.registry['email.template'].send_mail(cr, SUPERUSER_ID, email_ctx2['default_template_id'], order.id, force_send=True, raise_exception=True, context=email_ctx2)
 
-
         else:
             return request.redirect('/shop')
 
@@ -400,3 +402,108 @@ class Website(openerp.addons.web.controllers.main.Home):
         else:
            return request.redirect("/shop/cart")
 
+#class contactus(http.Controller):
+class contactus(openerp.addons.website_crm.controllers.main.contactus):
+
+    @http.route(['/crm/contactus'], type='http', auth="public", website=True)
+    def contactus(self, **kwargs):
+        def dict_to_str(title, dictvar):
+            ret = "\n\n%s" % title
+            for field in dictvar:
+                ret += "\n%s" % field
+            return ret
+
+        _logger.info('in contact us ...')
+
+        _TECHNICAL = ['show_info', 'view_from', 'view_callback']  # Only use for behavior, don't stock it
+        _BLACKLIST = ['id', 'create_uid', 'create_date', 'write_uid', 'write_date', 'user_id', 'active']  # Allow in description
+        _REQUIRED = ['name', 'contact_name', 'email_from', 'description']  # Could be improved including required from model
+
+        post_file = []  # List of file to add to ir_attachment once we have the ID
+        post_description = []  # Info to add after the message
+        values = {}
+
+        values['medium_id'] = request.registry['ir.model.data'].xmlid_to_res_id(request.cr, SUPERUSER_ID, 'crm.crm_medium_website')
+        values['section_id'] = request.registry['ir.model.data'].xmlid_to_res_id(request.cr, SUPERUSER_ID, 'website.salesteam_website_sales')
+
+        for field_name, field_value in kwargs.items():
+            if hasattr(field_value, 'filename'):
+                post_file.append(field_value)
+            elif field_name in request.registry['crm.lead']._fields and field_name not in _BLACKLIST:
+                values[field_name] = field_value
+            elif field_name not in _TECHNICAL:  # allow to add some free fields or blacklisted field like ID
+                post_description.append("%s: %s" % (field_name, field_value))
+
+        if "name" not in kwargs and values.get("contact_name"):  # if kwarg.name is empty, it's an error, we cannot copy the contact_name
+            values["name"] = values.get("contact_name")
+        # fields validation : Check that required field from model crm_lead exists
+        error = set(field for field in _REQUIRED if not values.get(field))
+
+        if error:
+            values = dict(values, error=error, kwargs=kwargs.items())
+            return request.website.render(kwargs.get("view_from", "website.contactus"), values)
+
+        # description is required, so it is always already initialized
+        if post_description:
+            values['description'] += dict_to_str(_("Custom Fields: "), post_description)
+
+        if kwargs.get("show_info"):
+            post_description = []
+            environ = request.httprequest.headers.environ
+            post_description.append("%s: %s" % ("IP", environ.get("REMOTE_ADDR")))
+            post_description.append("%s: %s" % ("USER_AGENT", environ.get("HTTP_USER_AGENT")))
+            post_description.append("%s: %s" % ("ACCEPT_LANGUAGE", environ.get("HTTP_ACCEPT_LANGUAGE")))
+            post_description.append("%s: %s" % ("REFERER", environ.get("HTTP_REFERER")))
+            values['description'] += dict_to_str(_("Environ Fields: "), post_description)
+
+        lead_id = self.create_lead(request, dict(values, user_id=False), kwargs)
+        values.update(lead_id=lead_id)
+        if lead_id:
+            for field_value in post_file:
+                attachment_value = {
+                    'name': field_value.filename,
+                    'res_name': field_value.filename,
+                    'res_model': 'crm.lead',
+                    'res_id': lead_id,
+                    'datas': base64.encodestring(field_value.read()),
+                    'datas_fname': field_value.filename,
+                }
+                request.registry['ir.attachment'].create(request.cr, SUPERUSER_ID, attachment_value, context=request.context)
+
+        _logger.info('send new lead email notification ...')
+
+        ir_model_data = request.registry['ir.model.data']
+        email_template = request.registry['email.template']
+        mail_compose_message = request.registry['mail.compose.message']
+        context = request.cr
+
+        try:
+            template_id = ir_model_data.get_object_reference(request.cr, SUPERUSER_ID, 'crm', 'email_template_new_lead_notification')[1]
+        except ValueError:
+            template_id = False
+
+        ctx = dict()
+
+        if not template_id:
+            template_id = email_template.search(request.cr, SUPERUSER_ID, [('name','=','New lead email notification')])[0]
+
+        _logger.info('template_id =)' + str(template_id))
+
+        composer_values = {}
+        composer_values['email_from'] = request.website.user_id.company_id.email
+        _logger.info('composer_values =)' + str(composer_values))
+
+        email_ctx = {
+            'default_model': 'crm.lead',
+            'default_res_id': lead_id,
+            'default_use_template': bool(template_id),
+            'default_template_id': template_id,
+            'default_composition_mode': 'comment'
+        }
+
+        composer_id = mail_compose_message.create(request.cr, SUPERUSER_ID, composer_values, context=email_ctx)
+        _logger.info('composer_id =)' + str(composer_id))
+
+        email_template.send_mail(request.cr, SUPERUSER_ID, template_id, lead_id, force_send=True, raise_exception=True, context=email_ctx)
+
+        return self.get_contactus_response(values, kwargs)
