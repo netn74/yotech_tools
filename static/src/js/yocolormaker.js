@@ -58,7 +58,6 @@ $(document).ready(function() {
 
     function bgimg(tag, img) {
       backgroundvalue  = "url("+img+")";
-      /*backgroundvalue  = "url(http://babache-erp-st.yotech.ch/website/image/product.template/4420_69929a6/image/26x26)";*/
       $(tag).css("background-image", backgroundvalue);
       $(tag).css("background-repeat", "no-repeat");
       $(tag).css("background-size", "cover");
